@@ -38,10 +38,10 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
-        panelSlider = new javax.swing.JPanel();
-        sliderMain = new javax.swing.JSlider();
         jScrollPane2 = new javax.swing.JScrollPane();
         jLabel2 = new javax.swing.JLabel();
+        panelSlider = new javax.swing.JPanel();
+        sliderMain = new javax.swing.JSlider();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -57,14 +57,14 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 51));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Nenhuma Imagem");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jLabel1.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
         jScrollPane1.setViewportView(jLabel1);
         jLabel1.getAccessibleContext().setAccessibleName("");
 
+        jScrollPane2.setViewportView(jLabel2);
+
         sliderMain.setMaximum(10);
-        sliderMain.setValue(10);
         sliderMain.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 sliderMainStateChanged(evt);
@@ -77,7 +77,7 @@ public class NewJFrame extends javax.swing.JFrame {
             panelSliderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelSliderLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(sliderMain, javax.swing.GroupLayout.DEFAULT_SIZE, 778, Short.MAX_VALUE)
+                .addComponent(sliderMain, javax.swing.GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelSliderLayout.setVerticalGroup(
@@ -87,9 +87,6 @@ public class NewJFrame extends javax.swing.JFrame {
                 .addComponent(sliderMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-
-        jLabel2.setText("jLabel2");
-        jScrollPane2.setViewportView(jLabel2);
 
         jMenu1.setText("Arquivo");
 
@@ -167,23 +164,20 @@ public class NewJFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane2))
                     .addComponent(panelSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 616, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(176, 176, 176)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 616, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -302,6 +296,7 @@ public class NewJFrame extends javax.swing.JFrame {
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
         
+        sliderMain.addChangeListener(transparenciaSliderChanged);
         //sliderMain.setValue(0);
         //int width = imagem1.getWidth();
         //int height = imagem1.getHeight();
@@ -369,12 +364,15 @@ public class NewJFrame extends javax.swing.JFrame {
                       flag=1;
                   }
                   else jLabel2.setIcon(icon);
-                  
-                  
+                 
                   if (this.imagem2 != null ) {
                     //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
                   }
-                  jScrollPane2.setSize(this.getWidth(), this.getHeight());
+                  jScrollPane2.setSize(this.getWidth() / 2, this.getHeight() / 2);
+                  jScrollPane1.setSize(this.getWidth() / 2, this.getHeight() / 2);
+                  
+                  jScrollPane2.setLocation((this.getWidth() / 2) + 10, 0);
+
 	    }
 	    catch(IOException e){
 		System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
@@ -419,6 +417,34 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) {                                        
+        //transparencia
+        panelSlider.setVisible(true);
+        //sliderMain.setValue(10);
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10.0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = (int) (0*(1-transparencia) + c.getRed()* transparencia);
+               int green = (int) (0*(1-transparencia) + c.getGreen()* transparencia);
+               int blue = (int) (0*(1-transparencia) + c.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
