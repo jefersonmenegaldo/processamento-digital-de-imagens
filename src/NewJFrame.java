@@ -12,6 +12,8 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.*;
 
 public class NewJFrame extends javax.swing.JFrame {
@@ -52,6 +54,11 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jMenuItem10 = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -60,7 +67,6 @@ public class NewJFrame extends javax.swing.JFrame {
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jLabel1.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
         jScrollPane1.setViewportView(jLabel1);
-        jLabel1.getAccessibleContext().setAccessibleName("");
 
         jScrollPane2.setViewportView(jLabel2);
 
@@ -68,6 +74,8 @@ public class NewJFrame extends javax.swing.JFrame {
         sliderMain.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 sliderMainStateChanged(evt);
+                transparenciaSliderChanged(evt);
+                correcaoGammaSliderChanged(evt);
             }
         });
 
@@ -149,6 +157,27 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
         jMenu2.add(jMenuItem7);
+
+        jMenu3.setText("Arquivo PNM");
+
+        jMenuItem8.setText("Abrir Arquivo");
+        jMenu3.add(jMenuItem8);
+
+        jMenuItem9.setText("Exportar");
+        jMenu3.add(jMenuItem9);
+
+        jMenu2.add(jMenu3);
+
+        jMenuItem10.setText("Segmentar Cor");
+        jMenu2.add(jMenuItem10);
+
+        jMenuItem11.setText("Correção Gamma");
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem11ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem11);
 
         jMenuBar1.add(jMenu2);
 
@@ -296,7 +325,15 @@ public class NewJFrame extends javax.swing.JFrame {
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
         
-        sliderMain.addChangeListener(transparenciaSliderChanged);
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                transparenciaSliderChanged(t);
+            }          
+        });
+        
+        
+        
         //sliderMain.setValue(0);
         //int width = imagem1.getWidth();
         //int height = imagem1.getHeight();
@@ -383,6 +420,80 @@ public class NewJFrame extends javax.swing.JFrame {
         }  
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+        //transparencia
+        jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        panelSlider.setSize(this.getWidth(), 120);
+        panelSlider.setVisible(true);
+        sliderMain.setMinimum(0);
+        sliderMain.setMaximum(25);
+        sliderMain.setValue(10);
+        
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                correcaoGammaSliderChanged(t);
+            }          
+        });                   
+    }//GEN-LAST:event_jMenuItem11ActionPerformed
+
+    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_transparenciaSliderChanged
+        //transparencia
+        panelSlider.setVisible(true);
+        //sliderMain.setValue(10);
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10.0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = (int) (0*(1-transparencia) + c.getRed()* transparencia);
+               int green = (int) (0*(1-transparencia) + c.getGreen()* transparencia);
+               int blue = (int) (0*(1-transparencia) + c.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }//GEN-LAST:event_transparenciaSliderChanged
+
+    private void correcaoGammaSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_correcaoGammaSliderChanged
+        panelSlider.setVisible(true);
+        //sliderMain.setValue(10);
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        
+        double valor_gamma = (double) sliderMain.getValue() / 10;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = this.correcaoGamma(255, c.getRed(), valor_gamma);
+               int green = this.correcaoGamma(255, c.getGreen(), valor_gamma);
+               int blue = this.correcaoGamma(255, c.getBlue(), valor_gamma);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }//GEN-LAST:event_correcaoGammaSliderChanged
+    
+    public int correcaoGamma(double c, int original, double gamma) {
+        double r = original / 255.0; // Normaliza para [0, 1]
+        double s = c * Math.pow(r, gamma); // Aplica a transformação
+        return (int) Math.round(Math.min(255, Math.max(0, s))); // Garante o intervalo [0, 255]
+    }    
+    
     /**
      * @param args the command line arguments
      */
@@ -418,46 +529,24 @@ public class NewJFrame extends javax.swing.JFrame {
         });
     }
     
-    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) {                                        
-        //transparencia
-        panelSlider.setVisible(true);
-        //sliderMain.setValue(10);
-        if (this.imagem1 == null)
-            return;
-        
-        int width = imagem1.getWidth();
-        int height = imagem1.getHeight();
-        int value = sliderMain.getValue();
-        double transparencia = value / 10.0;
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) { 				
-               Color c = new Color(imagem2.getRGB(i, j));
-                             
-               int red = (int) (0*(1-transparencia) + c.getRed()* transparencia);
-               int green = (int) (0*(1-transparencia) + c.getGreen()* transparencia);
-               int blue = (int) (0*(1-transparencia) + c.getBlue()* transparencia);
-               
-               Color color = new Color(red, green, blue);
-               imagem1.setRGB(i, j, color.getRGB());
-            }
-        }
-        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        
-    }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel panelSlider;
