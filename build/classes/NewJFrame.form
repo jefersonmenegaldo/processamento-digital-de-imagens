@@ -212,7 +212,7 @@
             <Property name="maximum" type="int" value="10"/>
           </Properties>
           <Events>
-            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="sliderMainStateChanged,transparenciaSliderChanged,correcaoGammaSliderChanged,sobreporImagensSliderChanged"/>
+            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="sobreporImagensSliderChanged"/>
           </Events>
         </Component>
       </SubComponents>

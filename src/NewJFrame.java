@@ -19,7 +19,10 @@ import javax.swing.filechooser.*;
 public class NewJFrame extends javax.swing.JFrame {
      BufferedImage imagem1;
      BufferedImage imagem2;
+     BufferedImage imagem3;
      int flag=0;
+     int quem_chamou = -1;
+     int ultimo_valor_slider = 0;
    
     public NewJFrame() {
         initComponents();
@@ -73,10 +76,7 @@ public class NewJFrame extends javax.swing.JFrame {
         sliderMain.setMaximum(10);
         sliderMain.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                sliderMainStateChanged(evt);
-                transparenciaSliderChanged(evt);
-                correcaoGammaSliderChanged(evt);
-                sobreporImagensSliderChanged(evt);
+
             }
         });
 
@@ -213,7 +213,7 @@ public class NewJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
         //panelSlider.setVisible(false);
         JFileChooser chooser = new JFileChooser();
@@ -253,13 +253,13 @@ public class NewJFrame extends javax.swing.JFrame {
 		System.out.println("Erro Exception! " + e.getMessage());
 	    }                   
         }  
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         System.exit(1);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //panelSlider.setVisible(false);
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG Images", "jpg");
@@ -280,9 +280,9 @@ public class NewJFrame extends javax.swing.JFrame {
 			System.out.println("Erro Exception! " + e.getMessage());
 		}
         }
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //panelSlider.setVisible(false);
         int width = imagem1.getWidth();
 	int height = imagem1.getHeight();
@@ -303,9 +303,9 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
 
 
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }
 
-    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {                                           
        //panelSlider.setVisible(false);
        int width = imagem1.getWidth();
        int height = imagem1.getHeight();
@@ -318,9 +318,10 @@ public class NewJFrame extends javax.swing.JFrame {
 	    }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_jMenuItem5ActionPerformed
+    }
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {  
+        this.quem_chamou = 2;
         //transparencia
         jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         panelSlider.setSize(this.getWidth(), 120);
@@ -350,9 +351,9 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
         */
         
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    }
 
-    private void sliderMainStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderMainStateChanged
+    private void sliderMainStateChanged(javax.swing.event.ChangeEvent evt) {                                        
         //transparencia
         panelSlider.setVisible(true);
         //sliderMain.setValue(10);
@@ -377,17 +378,20 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
         
-    }//GEN-LAST:event_sliderMainStateChanged
+    }
 
-    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //sobrepor imagens
-        jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        //jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        this.quem_chamou = 1;
+        this.imagem3 = this.imagem2;
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
         sliderMain.setMinimum(0);
         sliderMain.setMaximum(10);
         sliderMain.setValue(0);
         
+        //sliderMain.setValue(0);
         sliderMain.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent t){
@@ -421,9 +425,10 @@ public class NewJFrame extends javax.swing.JFrame {
                   if (this.imagem2 != null ) {
                     //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
                   }
-                  jScrollPane2.setSize(this.getWidth() / 2, this.getHeight() / 2);
-                  jScrollPane1.setSize(this.getWidth() / 2, this.getHeight() / 2);
-                  
+                  jScrollPane2.setSize(this.getWidth() / 2 - 50, this.getHeight() / 2 -50);
+                  jScrollPane1.setSize(this.getWidth() / 2-50, this.getHeight() / 2-50);
+                  jLabel1.setSize(jScrollPane1.getWidth()-50, jScrollPane1.getHeight()-50);
+                  jLabel1.setSize(jScrollPane2.getWidth()-50, jScrollPane2.getHeight()-50);
                   jScrollPane2.setLocation((this.getWidth() / 2) + 10, 0);
 
 	    }
@@ -434,9 +439,10 @@ public class NewJFrame extends javax.swing.JFrame {
 		System.out.println("Erro Exception! " + e.getMessage());
 	    }                   
         }  
-    }//GEN-LAST:event_jMenuItem7ActionPerformed
+    }
 
-    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {   
+        this.quem_chamou = 3;
         //transparencia
         jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         panelSlider.setSize(this.getWidth(), 120);
@@ -451,9 +457,12 @@ public class NewJFrame extends javax.swing.JFrame {
                 correcaoGammaSliderChanged(t);
             }          
         });                   
-    }//GEN-LAST:event_jMenuItem11ActionPerformed
+    }
 
-    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_transparenciaSliderChanged
+    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) { 
+        if (this.quem_chamou != 2)
+            return;
+        
         //correcao gamma
         panelSlider.setVisible(true);
         //sliderMain.setValue(10);
@@ -477,9 +486,13 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_transparenciaSliderChanged
+    }
 
-    private void correcaoGammaSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_correcaoGammaSliderChanged
+    private void correcaoGammaSliderChanged(javax.swing.event.ChangeEvent evt) { 
+        
+        if (this.quem_chamou != 3)
+            return;
+        
         panelSlider.setVisible(true);
         //sliderMain.setValue(10);
         if (this.imagem1 == null)
@@ -502,9 +515,13 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_correcaoGammaSliderChanged
+    }
 
-    private void sobreporImagensSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sobreporImagensSliderChanged
+    private void sobreporImagensSliderChanged(javax.swing.event.ChangeEvent evt) {                                              
+        
+        if (this.quem_chamou != 1) 
+            return;
+        
         //sobrepor imagens
         panelSlider.setVisible(true);
         //sliderMain.setValue(10);
@@ -514,11 +531,26 @@ public class NewJFrame extends javax.swing.JFrame {
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
         int value = sliderMain.getValue();
-        double transparencia = value / 10;
+        double transparencia = value / 10.0;
+        /*if (this.ultimo_valor_slider == 0 || this.ultimo_valor_slider > value) {
+            JOptionPane.showMessageDialog(this, "aumentou");
+        } else
+          JOptionPane.showMessageDialog(this, "diminuiu");
+        */
         for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) { 				
-               Color c1 = new Color(imagem1.getRGB(i, j));
-               Color c2 = new Color(imagem2.getRGB(i, j));
+            for (int j = 0; j < height; j++) { 
+                Color c1;
+                Color c2;
+                if (this.ultimo_valor_slider != 0 || this.ultimo_valor_slider > value) {
+                    c1 = new Color(imagem2.getRGB(i, j));
+                    c2 = new Color(imagem3.getRGB(i, j));
+                    
+                } else {
+                    c1 = new Color(imagem1.getRGB(i, j));
+                    c2 = new Color(imagem2.getRGB(i, j));
+                    
+                }
+                
                
                int red = (int) (c1.getRed() *(1-transparencia) + c2.getRed()* transparencia);
                int green = (int) (c1.getGreen(  )*(1-transparencia) + c2.getGreen()* transparencia);
@@ -528,8 +560,9 @@ public class NewJFrame extends javax.swing.JFrame {
                imagem1.setRGB(i, j, color.getRGB());
             }
         }
+        this.ultimo_valor_slider = value;
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_sobreporImagensSliderChanged
+    }
     
     public int correcaoGamma(double c, int original, double gamma) {
         double r = original / 255.0; // Normaliza para [0, 1]
