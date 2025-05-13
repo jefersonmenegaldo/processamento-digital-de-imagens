@@ -76,6 +76,7 @@ public class NewJFrame extends javax.swing.JFrame {
                 sliderMainStateChanged(evt);
                 transparenciaSliderChanged(evt);
                 correcaoGammaSliderChanged(evt);
+                sobreporImagensSliderChanged(evt);
             }
         });
 
@@ -379,6 +380,21 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_sliderMainStateChanged
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        //sobrepor imagens
+        jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        panelSlider.setSize(this.getWidth(), 120);
+        panelSlider.setVisible(true);
+        sliderMain.setMinimum(0);
+        sliderMain.setMaximum(10);
+        sliderMain.setValue(0);
+        
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                sobreporImagensSliderChanged(t);
+            }          
+        }); 
+        
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif");
         chooser.setFileFilter(filter);
@@ -438,7 +454,7 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_transparenciaSliderChanged
-        //transparencia
+        //correcao gamma
         panelSlider.setVisible(true);
         //sliderMain.setValue(10);
         if (this.imagem1 == null)
@@ -487,6 +503,33 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }//GEN-LAST:event_correcaoGammaSliderChanged
+
+    private void sobreporImagensSliderChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sobreporImagensSliderChanged
+        //sobrepor imagens
+        panelSlider.setVisible(true);
+        //sliderMain.setValue(10);
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c1 = new Color(imagem1.getRGB(i, j));
+               Color c2 = new Color(imagem2.getRGB(i, j));
+               
+               int red = (int) (c1.getRed() *(1-transparencia) + c2.getRed()* transparencia);
+               int green = (int) (c1.getGreen(  )*(1-transparencia) + c2.getGreen()* transparencia);
+               int blue = (int) (c1.getBlue()*(1-transparencia) + c2.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }//GEN-LAST:event_sobreporImagensSliderChanged
     
     public int correcaoGamma(double c, int original, double gamma) {
         double r = original / 255.0; // Normaliza para [0, 1]
