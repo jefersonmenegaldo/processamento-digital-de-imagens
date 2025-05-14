@@ -17,6 +17,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.*;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -229,61 +230,68 @@ public class NewJFrame extends javax.swing.JFrame {
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Abrir Imagem");
         int op = chooser.showOpenDialog(this);
-        if(op == JFileChooser.APPROVE_OPTION){  
-            File arq = chooser.getSelectedFile();  
-            String path = arq.toString();  
-            try { 
-                  //File file = new File(path);
-                  //file.toPath();
-                  //Files.readAllLines(file.toPath());
-                  BufferedReader br = new BufferedReader(new FileReader(path));
-                  String linha;
-                  Pattern resolucao = Pattern.compile("^\\s*-?\\d+\\s+-?\\d+\\s*$");
-                  int numeroLinha = 1;
-                  int width = 0;
-                  int height = 0;
-                  while ((linha = br.readLine()) != null) {
-                      Matcher matcher = resolucao.matcher(linha);
-                      if (numeroLinha == 1 && !linha.equals("P6"))
-                          return;
-                      else if (matcher.matches()) {
-                        String[] data = linha.trim().split("\\s+");
-                        width = Integer.parseInt(data[0]);
-                        height = Integer.parseInt(data[1]);
-                        
-                        imagem1 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                      } else if (!linha.trim().isEmpty()) {
-                          if (!linha.startsWith("#")) {
-                            byte[] rgbData  = linha.getBytes();
-                            int contaRGB = 1;    
-                            int red = 0;
-                            int green = 0;
-                            int blue = 0;
-                            for (int i = 0; i < rgbData.length -1; i++) {
-                              if (contaRGB == 1) 
-                                red = rgbData[i];
-                              if (contaRGB == 2) 
-                                green = rgbData[i];
-                              if (contaRGB == 1) 
-                                blue = rgbData[i];
-                              
-                              contaRGB++;
-                              
-                              if (contaRGB == 4)
-                                contaRGB = 1;
-                            }
-                                
-                          }
-                      }
-                      System.out.println(linha);
-                      numeroLinha++;
-                  }
 
-	    }
+        if (op == JFileChooser.APPROVE_OPTION) {
+            File arq = chooser.getSelectedFile();
 
-	    catch(Exception e){
-		System.out.println("Erro Exception! " + e.getMessage());
-	    }                   
+            try (InputStream is = new FileInputStream(arq)) {
+                // Leitura do cabeçalho
+                Scanner scanner = new Scanner(is);
+                scanner.useDelimiter("\\s+");
+
+                // 1. Verifica se é P6
+                String magicNumber = scanner.next();
+                if (!magicNumber.equals("P6")) {
+                    System.out.println("Formato inválido (esperado P6)");
+                    return;
+                }
+
+                // 2. Ignora comentários
+                while (scanner.hasNext("#.*")) {
+                    scanner.nextLine();
+                }
+
+                // 3. Lê largura, altura e valor máximo da cor
+                int width = scanner.nextInt();
+                int height = scanner.nextInt();
+                int maxVal = scanner.nextInt();
+
+                if (maxVal != 255) {
+                    System.out.println("Valor máximo de cor diferente de 255 (não suportado nesta versão)");
+                    return;
+                }
+
+                // Move o scanner para o byte seguinte depois do cabeçalho
+                is.skip(1); // Pula o caractere '\n' após o valor máximo da cor
+
+                // 4. Cria BufferedImage
+                BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+                // 5. Lê dados RGB
+                byte[] rgb = is.readNBytes(width * height * 3);
+                //byte[] rgb = is.readNBytes(3);
+                int index = 0;
+
+                for (int y = 0; y < height-1; y++) {
+                    for (int x = 0; x < width-1; x++) {
+                        int r = rgb[index++]; //& 0xFF;
+                        int g = rgb[index++] & 0xFF;
+                        int b = rgb[index++] & 0xFF;
+
+                        int color = (r << 16) | (g << 8) | b;
+                        imagem.setRGB(x, y, color);
+                    }
+                }
+
+                // Aqui você pode exibir ou salvar a imagem
+                this.imagem1 = imagem;
+                repaint(); // ou outra forma de atualizar a tela, se necessário
+                System.out.println("Imagem carregada com sucesso: " + width + "x" + height);
+                this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+            } catch (Exception e) {
+                System.out.println("Erro ao ler imagem PPM: " + e.getMessage());
+                e.printStackTrace();
+            }
         }  
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
