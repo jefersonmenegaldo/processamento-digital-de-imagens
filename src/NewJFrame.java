@@ -366,13 +366,26 @@ public class NewJFrame extends javax.swing.JFrame {
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //panelSlider.setVisible(false);
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG Images", "jpg");
-        chooser.setFileFilter(filter);
-        chooser.setDialogTitle("Salvar Imagem");
+        
+        
+        FileNameExtensionFilter filtroPNG = new FileNameExtensionFilter("PNG (*.png)", "png");
+        FileNameExtensionFilter filtroJPG = new FileNameExtensionFilter("JPEG (*.jpg)", "jpg", "jpeg");
+        FileNameExtensionFilter filtroBMP = new FileNameExtensionFilter("BMP (*.bmp)", "bmp");
+        FileNameExtensionFilter filtroGIF = new FileNameExtensionFilter("GIF (*.GIF)", "GIF");
+
+        chooser.addChoosableFileFilter(filtroPNG);
+        chooser.addChoosableFileFilter(filtroJPG);
+        chooser.addChoosableFileFilter(filtroBMP);
+        chooser.addChoosableFileFilter(filtroGIF);
+        chooser.setFileFilter(filtroPNG); 
+        chooser.setDialogTitle("Salvar imagem");
+
         int op = chooser.showSaveDialog(this);
-        if(op == JFileChooser.APPROVE_OPTION){  
+        if(op == JFileChooser.APPROVE_OPTION){        
             File arq = chooser.getSelectedFile();  
-            String path = arq.toString();  
+            FileNameExtensionFilter filtroSelecionado = (FileNameExtensionFilter) chooser.getFileFilter();
+            String extensao = filtroSelecionado.getExtensions()[0];
+            String path = arq.toString() +'.'+ extensao;  
             try {
 		ImageIO.write(imagem1,"jpg",new File(path));
 		System.out.println("Arquivo salvo com sucesso!");
