@@ -12,9 +12,14 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Files;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class NewJFrame extends javax.swing.JFrame {
      BufferedImage imagem1;
@@ -76,7 +81,7 @@ public class NewJFrame extends javax.swing.JFrame {
         sliderMain.setMaximum(10);
         sliderMain.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-
+                sobreporImagensSliderChanged(evt);
             }
         });
 
@@ -162,6 +167,11 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenu3.setText("Arquivo PNM");
 
         jMenuItem8.setText("Abrir Arquivo");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem8);
 
         jMenuItem9.setText("Exportar");
@@ -212,6 +222,70 @@ public class NewJFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("PPM", "ppm");
+        chooser.setFileFilter(filter);
+        chooser.setDialogTitle("Abrir Imagem");
+        int op = chooser.showOpenDialog(this);
+        if(op == JFileChooser.APPROVE_OPTION){  
+            File arq = chooser.getSelectedFile();  
+            String path = arq.toString();  
+            try { 
+                  //File file = new File(path);
+                  //file.toPath();
+                  //Files.readAllLines(file.toPath());
+                  BufferedReader br = new BufferedReader(new FileReader(path));
+                  String linha;
+                  Pattern resolucao = Pattern.compile("^\\s*-?\\d+\\s+-?\\d+\\s*$");
+                  int numeroLinha = 1;
+                  int width = 0;
+                  int height = 0;
+                  while ((linha = br.readLine()) != null) {
+                      Matcher matcher = resolucao.matcher(linha);
+                      if (numeroLinha == 1 && !linha.equals("P6"))
+                          return;
+                      else if (matcher.matches()) {
+                        String[] data = linha.trim().split("\\s+");
+                        width = Integer.parseInt(data[0]);
+                        height = Integer.parseInt(data[1]);
+                        
+                        imagem1 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                      } else if (!linha.trim().isEmpty()) {
+                          if (!linha.startsWith("#")) {
+                            byte[] rgbData  = linha.getBytes();
+                            int contaRGB = 1;    
+                            int red = 0;
+                            int green = 0;
+                            int blue = 0;
+                            for (int i = 0; i < rgbData.length -1; i++) {
+                              if (contaRGB == 1) 
+                                red = rgbData[i];
+                              if (contaRGB == 2) 
+                                green = rgbData[i];
+                              if (contaRGB == 1) 
+                                blue = rgbData[i];
+                              
+                              contaRGB++;
+                              
+                              if (contaRGB == 4)
+                                contaRGB = 1;
+                            }
+                                
+                          }
+                      }
+                      System.out.println(linha);
+                      numeroLinha++;
+                  }
+
+	    }
+
+	    catch(Exception e){
+		System.out.println("Erro Exception! " + e.getMessage());
+	    }                   
+        }  
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
