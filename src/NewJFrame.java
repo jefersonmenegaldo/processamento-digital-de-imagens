@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.*;
@@ -226,71 +227,92 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("PPM", "ppm");
-        chooser.setFileFilter(filter);
+        chooser.setFileFilter(new FileNameExtensionFilter("PPM (P3)", "ppm"));
         chooser.setDialogTitle("Abrir Imagem");
-        int op = chooser.showOpenDialog(this);
 
-        if (op == JFileChooser.APPROVE_OPTION) {
-            File arq = chooser.getSelectedFile();
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
 
-            try (InputStream is = new FileInputStream(arq)) {
-                // Leitura do cabeçalho
-                Scanner scanner = new Scanner(is);
-                scanner.useDelimiter("\\s+");
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
-                // 1. Verifica se é P6
-                String magicNumber = scanner.next();
-                if (!magicNumber.equals("P6")) {
-                    System.out.println("Formato inválido (esperado P6)");
-                    return;
+                String line;
+                // 1. Lê a mágica P3
+                do {
+                    line = br.readLine();
+                } while (line != null && (line.trim().isEmpty() || line.trim().startsWith("#")));
+
+                if (!line.trim().equals("P3")) {
+                    throw new IOException("Formato inválido. Esperado: P3");
                 }
 
-                // 2. Ignora comentários
-                while (scanner.hasNext("#.*")) {
-                    scanner.nextLine();
-                }
+                // 2. Lê largura e altura
+                int width = 0, height = 0;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.startsWith("#") || line.isEmpty()) continue;
 
-                // 3. Lê largura, altura e valor máximo da cor
-                int width = scanner.nextInt();
-                int height = scanner.nextInt();
-                int maxVal = scanner.nextInt();
-
-                if (maxVal != 255) {
-                    System.out.println("Valor máximo de cor diferente de 255 (não suportado nesta versão)");
-                    return;
-                }
-
-                // Move o scanner para o byte seguinte depois do cabeçalho
-                is.skip(1); // Pula o caractere '\n' após o valor máximo da cor
-
-                // 4. Cria BufferedImage
-                BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-                // 5. Lê dados RGB
-                byte[] rgb = is.readNBytes(width * height * 3);
-                //byte[] rgb = is.readNBytes(3);
-                int index = 0;
-
-                for (int y = 0; y < height-1; y++) {
-                    for (int x = 0; x < width-1; x++) {
-                        int r = rgb[index++]; //& 0xFF;
-                        int g = rgb[index++] & 0xFF;
-                        int b = rgb[index++] & 0xFF;
-
-                        int color = (r << 16) | (g << 8) | b;
-                        imagem.setRGB(x, y, color);
+                    String[] parts = line.split("\\s+");
+                    if (parts.length >= 2) {
+                        width = Integer.parseInt(parts[0]);
+                        height = Integer.parseInt(parts[1]);
+                        break;
                     }
                 }
 
-                // Aqui você pode exibir ou salvar a imagem
+                // 3. Lê valor máximo de cor
+                int maxColor = 255;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.startsWith("#") || line.isEmpty()) continue;
+
+                    maxColor = Integer.parseInt(line);
+                    if (maxColor != 255) {
+                        throw new IOException("Valor máximo de cor diferente de 255 não suportado");
+                    }
+                    break;
+                }
+
+                // 4. Lê todos os valores RGB como inteiros
+                List<Integer> rgbList = new ArrayList<>();
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.startsWith("#") || line.isEmpty()) continue;
+
+                    String[] values = line.split("\\s+");
+                    for (String val : values) {
+                        if (!val.isEmpty())
+                            rgbList.add(Integer.parseInt(val));
+                    }
+                }
+
+                if (rgbList.size() != width * height * 3) {
+                    throw new IOException("Número de valores RGB incorreto.");
+                }
+
+                // 5. Monta a imagem
+                BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                int idx = 0;
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int r = rgbList.get(idx++);
+                        int g = rgbList.get(idx++);
+                        int b = rgbList.get(idx++);
+                        int rgb = (r << 16) | (g << 8) | b;
+                        imagem.setRGB(x, y, rgb);
+                    }
+                }
+
                 this.imagem1 = imagem;
-                repaint(); // ou outra forma de atualizar a tela, se necessário
-                System.out.println("Imagem carregada com sucesso: " + width + "x" + height);
+                repaint();
+                System.out.println("Imagem P3 carregada com sucesso!");
+                ImageIcon icon = new ImageIcon(imagem1);
+                jLabel1.setIcon(icon);
+
                 this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+
             } catch (Exception e) {
-                System.out.println("Erro ao ler imagem PPM: " + e.getMessage());
                 e.printStackTrace();
+                System.out.println("Erro ao ler imagem PPM P3: " + e.getMessage());
             }
         }  
     }//GEN-LAST:event_jMenuItem8ActionPerformed
