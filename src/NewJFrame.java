@@ -27,6 +27,9 @@ public class NewJFrame extends javax.swing.JFrame {
      BufferedImage imagem1;
      BufferedImage imagem2;
      BufferedImage imagem3;
+     
+     ImageIcon imagem1Icon = null;
+     
      int flag=0;
      int quem_chamou = -1;
      int ultimo_valor_slider = 0;
@@ -69,6 +72,8 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
+        jMenuItem13 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -182,6 +187,11 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenu2.add(jMenu3);
 
         jMenuItem10.setText("Segmentar Cor");
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem10ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem10);
 
         jMenuItem11.setText("Correção Gamma");
@@ -191,6 +201,22 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
         jMenu2.add(jMenuItem11);
+
+        jMenuItem12.setText("Espelhar Horizontalmente");
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem12ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem12);
+
+        jMenuItem13.setText("Espelhar Verticalmente");
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem13ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem13);
 
         jMenuBar1.add(jMenu2);
 
@@ -316,6 +342,84 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         }  
     }//GEN-LAST:event_jMenuItem8ActionPerformed
+    
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+        FrmColorChoose frm = new FrmColorChoose(this, true);
+        frm.setVisible(true);
+        
+        if (frm.MODAL_RESULT != JOptionPane.OK_OPTION)
+            return;
+        
+        int width = imagem1.getWidth();
+	int height = imagem1.getHeight();
+        Color cor_escolhida = frm.getCorEscolhida();
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color cor = new Color(imagem1.getRGB(i, j));
+               
+               int r = cor.getRed();
+               int g = cor.getGreen();
+               int b = cor.getBlue();
+               
+               if (cor.getRed()!= cor_escolhida.getRed() || 
+                   cor.getGreen() != cor_escolhida.getGreen() ||
+                   cor.getBlue() != cor_escolhida.getBlue()) {
+                   r = 0;
+                   g = 0;
+                   b = 0;
+               }             
+               
+               Color color = new Color(r, g, b);
+               imagem1.setRGB(i, j, color.getRGB());
+	    }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        
+    }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
+        int width = imagem1.getWidth();
+	int height = imagem1.getHeight();
+        
+        BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
+               
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+              
+               int rgb = imagem1.getRGB(i, j);
+               int x_invertido = width - 1 -i;
+               invertida.setRGB(x_invertido, j, rgb);
+	    }
+        }
+        imagem1 = null;
+        imagem1 = copiarImagemPixelPorPixel(invertida);
+        imagem1Icon = new ImageIcon(invertida);
+        jLabel1.setIcon(imagem1Icon);
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
+    }//GEN-LAST:event_jMenuItem12ActionPerformed
+
+    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
+        int width = imagem1.getWidth();
+	int height = imagem1.getHeight();
+        
+        BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
+               
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+              
+               int rgb = imagem1.getRGB(i, j);
+               int y_invertido = height - 1 -j;
+               invertida.setRGB(i, y_invertido, rgb);
+	    }
+        }
+        
+        imagem1 = null;
+        imagem1 = copiarImagemPixelPorPixel(invertida);
+        imagem1Icon = new ImageIcon(invertida);
+        jLabel1.setIcon(imagem1Icon);
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
+    }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
@@ -333,16 +437,16 @@ public class NewJFrame extends javax.swing.JFrame {
                   imagem1 = ImageIO.read(new File(path));
                   imagem2 = ImageIO.read(new File(path));
                   System.out.println("Arquivo aberto com sucesso!");
-                  ImageIcon icon = new ImageIcon(imagem1);
+                  imagem1Icon = new ImageIcon(imagem1);
                   if (flag==0) {
                       
-                      jLabel1.setIcon(icon);
+                      jLabel1.setIcon(imagem1Icon);
                       //Container contentPane = getContentPane();
                       //contentPane.setLayout(new GridLayout());
                       //contentPane.add(new JScrollPane(jLabel1));
                       flag=1;
                   }
-                  else jLabel1.setIcon(icon);
+                  else jLabel1.setIcon(imagem1Icon);
                   
                   
                   if (this.imagem1 != null ) {
@@ -361,6 +465,22 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         System.exit(1);
+    }
+
+    public BufferedImage copiarImagemPixelPorPixel(BufferedImage original) {
+        int largura = original.getWidth();
+        int altura = original.getHeight();
+
+        BufferedImage copia = new BufferedImage(largura, altura, original.getType());
+
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                int rgb = original.getRGB(x, y);
+                copia.setRGB(x, y, rgb);
+            }
+        }
+
+        return copia;
     }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -501,12 +621,12 @@ public class NewJFrame extends javax.swing.JFrame {
         //sobrepor imagens
         //jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         this.quem_chamou = 1;
-        this.imagem3 = this.imagem2;
+        this.imagem3 = copiarImagemPixelPorPixel(this.imagem2);
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
         sliderMain.setMinimum(0);
         sliderMain.setMaximum(10);
-        sliderMain.setValue(0);
+        sliderMain.setValue(10);
         
         //sliderMain.setValue(0);
         sliderMain.addChangeListener(new ChangeListener() {
@@ -542,11 +662,13 @@ public class NewJFrame extends javax.swing.JFrame {
                   if (this.imagem2 != null ) {
                     //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
                   }
-                  jScrollPane2.setSize(this.getWidth() / 2 - 50, this.getHeight() / 2 -50);
-                  jScrollPane1.setSize(this.getWidth() / 2-50, this.getHeight() / 2-50);
+                  
+                  jScrollPane2.setSize(this.getWidth() / 2 - 50, this.getHeight()-150);
+                  jScrollPane1.setSize(this.getWidth() / 2-50, this.getHeight()- 150);
                   jLabel1.setSize(jScrollPane1.getWidth()-50, jScrollPane1.getHeight()-50);
                   jLabel1.setSize(jScrollPane2.getWidth()-50, jScrollPane2.getHeight()-50);
                   jScrollPane2.setLocation((this.getWidth() / 2) + 10, 0);
+                  jScrollPane1.setLocation(10, 0);
 
 	    }
 	    catch(IOException e){
@@ -664,10 +786,8 @@ public class NewJFrame extends javax.swing.JFrame {
                     
                 } else {
                     c1 = new Color(imagem1.getRGB(i, j));
-                    c2 = new Color(imagem2.getRGB(i, j));
-                    
+                    c2 = new Color(imagem2.getRGB(i, j));   
                 }
-                
                
                int red = (int) (c1.getRed() *(1-transparencia) + c2.getRed()* transparencia);
                int green = (int) (c1.getGreen(  )*(1-transparencia) + c2.getGreen()* transparencia);
@@ -732,6 +852,8 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
