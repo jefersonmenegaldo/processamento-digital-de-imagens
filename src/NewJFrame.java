@@ -39,6 +39,8 @@ public class NewJFrame extends javax.swing.JFrame {
         panelSlider.setVisible(false);
         sliderMain.setValue(10);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        jScrollPane2.setVisible(false);
+        jScrollPane1.setSize(this.getWidth()-50, this.getHeight()-50);
 
     }
 
@@ -65,11 +67,10 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        jMenuItem7 = new javax.swing.JMenuItem();
+        menuTransparencia = new javax.swing.JMenuItem();
+        menuSobrepor = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem8 = new javax.swing.JMenuItem();
-        jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem12 = new javax.swing.JMenuItem();
@@ -155,41 +156,38 @@ public class NewJFrame extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem5);
 
-        jMenuItem6.setText("Transparência Com a Cor Preta");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+        menuTransparencia.setText("Transparência Com a Cor Preta");
+        menuTransparencia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+                menuTransparenciaActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem6);
+        jMenu2.add(menuTransparencia);
 
-        jMenuItem7.setLabel("Sobrepor Imagens");
-        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+        menuSobrepor.setLabel("Sobrepor Imagens");
+        menuSobrepor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem7ActionPerformed(evt);
+                menuSobreporActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem7);
+        jMenu2.add(menuSobrepor);
 
         jMenu3.setText("Arquivo PNM");
 
         jMenuItem8.setText("Abrir Arquivo");
         jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem8ActionPerformed(evt);
+                menuAbrirPNM(evt);
             }
         });
         jMenu3.add(jMenuItem8);
-
-        jMenuItem9.setText("Exportar");
-        jMenu3.add(jMenuItem9);
 
         jMenu2.add(jMenu3);
 
         jMenuItem10.setText("Segmentar Cor");
         jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem10ActionPerformed(evt);
+                menuSegmentarCor(evt);
             }
         });
         jMenu2.add(jMenuItem10);
@@ -197,7 +195,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenuItem11.setText("Correção Gamma");
         jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem11ActionPerformed(evt);
+                menuCorrecaoGammaActionPerformed(evt);
             }
         });
         jMenu2.add(jMenuItem11);
@@ -205,7 +203,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenuItem12.setText("Espelhar Horizontalmente");
         jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem12ActionPerformed(evt);
+                menuEspelharHorizontal(evt);
             }
         });
         jMenu2.add(jMenuItem12);
@@ -213,7 +211,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenuItem13.setText("Espelhar Verticalmente");
         jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem13ActionPerformed(evt);
+                menuEspelharVertical(evt);
             }
         });
         jMenu2.add(jMenuItem13);
@@ -251,99 +249,97 @@ public class NewJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+    private void menuAbrirPNM(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbrirPNM
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new FileNameExtensionFilter("PPM (P3)", "ppm"));
         chooser.setDialogTitle("Abrir Imagem");
 
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
 
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        File file = chooser.getSelectedFile();
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
-                String line;
-                // 1. Lê a mágica P3
-                do {
-                    line = br.readLine();
-                } while (line != null && (line.trim().isEmpty() || line.trim().startsWith("#")));
+            String line;
 
-                if (!line.trim().equals("P3")) {
-                    throw new IOException("Formato inválido. Esperado: P3");
-                }
+            do {
+                line = br.readLine();
+            } while (line != null && (line.trim().isEmpty() || line.trim().startsWith("#")));
 
-                // 2. Lê largura e altura
-                int width = 0, height = 0;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.startsWith("#") || line.isEmpty()) continue;
+            if (!line.trim().equals("P3")) {
+                throw new IOException("Formato inválido. Esperado: P3");
+            }
 
-                    String[] parts = line.split("\\s+");
-                    if (parts.length >= 2) {
-                        width = Integer.parseInt(parts[0]);
-                        height = Integer.parseInt(parts[1]);
-                        break;
-                    }
-                }
+            int width = 0;
+            int height = 0;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#") || line.isEmpty()) continue;
 
-                // 3. Lê valor máximo de cor
-                int maxColor = 255;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.startsWith("#") || line.isEmpty()) continue;
-
-                    maxColor = Integer.parseInt(line);
-                    if (maxColor != 255) {
-                        throw new IOException("Valor máximo de cor diferente de 255 não suportado");
-                    }
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2) {
+                    width = Integer.parseInt(parts[0]);
+                    height = Integer.parseInt(parts[1]);
                     break;
                 }
-
-                // 4. Lê todos os valores RGB como inteiros
-                List<Integer> rgbList = new ArrayList<>();
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.startsWith("#") || line.isEmpty()) continue;
-
-                    String[] values = line.split("\\s+");
-                    for (String val : values) {
-                        if (!val.isEmpty())
-                            rgbList.add(Integer.parseInt(val));
-                    }
-                }
-
-                if (rgbList.size() != width * height * 3) {
-                    throw new IOException("Número de valores RGB incorreto.");
-                }
-
-                // 5. Monta a imagem
-                BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                int idx = 0;
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int r = rgbList.get(idx++);
-                        int g = rgbList.get(idx++);
-                        int b = rgbList.get(idx++);
-                        int rgb = (r << 16) | (g << 8) | b;
-                        imagem.setRGB(x, y, rgb);
-                    }
-                }
-
-                this.imagem1 = imagem;
-                repaint();
-                System.out.println("Imagem P3 carregada com sucesso!");
-                ImageIcon icon = new ImageIcon(imagem1);
-                jLabel1.setIcon(icon);
-
-                this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Erro ao ler imagem PPM P3: " + e.getMessage());
             }
+
+            int maxColor = 255;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#") || line.isEmpty()) continue;
+
+                maxColor = Integer.parseInt(line);
+                if (maxColor != 255) {
+                    throw new IOException("Valor máximo de cor diferente de 255 não suportado");
+                }
+                break;
+            }
+
+            List<Integer> rgbList = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("#") || line.isEmpty()) continue;
+
+                String[] values = line.split("\\s+");
+                for (String val : values) {
+                    if (!val.isEmpty())
+                        rgbList.add(Integer.parseInt(val));
+                }
+            }
+
+            if (rgbList.size() != width * height * 3) {
+                throw new IOException("Número de valores RGB incorreto.");
+            }
+
+            BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            int idx = 0;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int r = rgbList.get(idx++);
+                    int g = rgbList.get(idx++);
+                    int b = rgbList.get(idx++);
+                    int rgb = (r << 16) | (g << 8) | b;
+                    imagem.setRGB(x, y, rgb);
+                }
+            }
+
+            this.imagem1 = imagem;
+            repaint();
+            System.out.println("Imagem P3 carregada com sucesso!");
+            ImageIcon icon = new ImageIcon(imagem1);
+            jLabel1.setIcon(icon);
+
+            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Erro ao ler imagem PPM P3: " + e.getMessage());
         }  
-    }//GEN-LAST:event_jMenuItem8ActionPerformed
+    }//GEN-LAST:event_menuAbrirPNM
     
-    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+    private void menuSegmentarCor(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuSegmentarCor
         FrmColorChoose frm = new FrmColorChoose(this, true);
         frm.setVisible(true);
         
@@ -351,8 +347,8 @@ public class NewJFrame extends javax.swing.JFrame {
             return;
         
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
-        Color cor_escolhida = frm.getCorEscolhida();
+	    int height = imagem1.getHeight();
+        Color corSelecionada = frm.getCorEscolhida();
         
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) { 				
@@ -362,9 +358,9 @@ public class NewJFrame extends javax.swing.JFrame {
                int g = cor.getGreen();
                int b = cor.getBlue();
                
-               if (cor.getRed()!= cor_escolhida.getRed() || 
-                   cor.getGreen() != cor_escolhida.getGreen() ||
-                   cor.getBlue() != cor_escolhida.getBlue()) {
+               if (cor.getRed()!= corSelecionada.getRed() || 
+                   cor.getGreen() != corSelecionada.getGreen() ||
+                   cor.getBlue() != corSelecionada.getBlue()) {
                    r = 0;
                    g = 0;
                    b = 0;
@@ -376,11 +372,11 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
         
-    }//GEN-LAST:event_jMenuItem10ActionPerformed
+    }//GEN-LAST:event_menuSegmentarCor
 
-    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
+    private void menuEspelharHorizontal(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEspelharHorizontal
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
+	    int height = imagem1.getHeight();
         
         BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
                
@@ -397,11 +393,11 @@ public class NewJFrame extends javax.swing.JFrame {
         imagem1Icon = new ImageIcon(invertida);
         jLabel1.setIcon(imagem1Icon);
         this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
-    }//GEN-LAST:event_jMenuItem12ActionPerformed
+    }//GEN-LAST:event_menuEspelharHorizontal
 
-    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
+    private void menuEspelharVertical(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEspelharVertical
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
+	    int height = imagem1.getHeight();
         
         BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
                
@@ -411,7 +407,7 @@ public class NewJFrame extends javax.swing.JFrame {
                int rgb = imagem1.getRGB(i, j);
                int y_invertido = height - 1 -j;
                invertida.setRGB(i, y_invertido, rgb);
-	    }
+	        }
         }
         
         imagem1 = null;
@@ -419,7 +415,7 @@ public class NewJFrame extends javax.swing.JFrame {
         imagem1Icon = new ImageIcon(invertida);
         jLabel1.setIcon(imagem1Icon);
         this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
-    }//GEN-LAST:event_jMenuItem13ActionPerformed
+    }//GEN-LAST:event_menuEspelharVertical
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
@@ -557,9 +553,9 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {  
+    private void menuTransparenciaActionPerformed(java.awt.event.ActionEvent evt) {  
         this.quem_chamou = 2;
-        //transparencia
+        
         jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
@@ -570,30 +566,11 @@ public class NewJFrame extends javax.swing.JFrame {
                 transparenciaSliderChanged(t);
             }          
         });
-        
-        
-        
-        //sliderMain.setValue(0);
-        //int width = imagem1.getWidth();
-        //int height = imagem1.getHeight();
-        /*for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) { 				
-               Color c = new Color(imagem1.getRGB(i, j));
-               int argb = (c.getRed()<<24)|(c.getGreen()<<16)|(c.getBlue()<<8)|255; 
-               //int y = (int)(0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
-               Color color = new Color(argb); //c.getRed(), c.getGreen(), c.getBlue(), 0);
-               imagem1.setRGB(i, j, color.getRGB());
-            }
-        }
-        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        */
-        
     }
 
     private void sliderMainStateChanged(javax.swing.event.ChangeEvent evt) {                                        
         //transparencia
         panelSlider.setVisible(true);
-        //sliderMain.setValue(10);
         if (this.imagem1 == null)
             return;
         
@@ -601,6 +578,7 @@ public class NewJFrame extends javax.swing.JFrame {
         int height = imagem1.getHeight();
         int value = sliderMain.getValue();
         double transparencia = value / 10.0;
+
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) { 				
                Color c = new Color(imagem2.getRGB(i, j));
@@ -614,21 +592,19 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        
     }
 
-    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+    private void menuSobreporActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //sobrepor imagens
-        //jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         this.quem_chamou = 1;
         this.imagem3 = copiarImagemPixelPorPixel(this.imagem2);
+
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
         sliderMain.setMinimum(0);
         sliderMain.setMaximum(10);
         sliderMain.setValue(10);
         
-        //sliderMain.setValue(0);
         sliderMain.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent t){
@@ -650,25 +626,18 @@ public class NewJFrame extends javax.swing.JFrame {
                   System.out.println("Arquivo aberto com sucesso!");
                   ImageIcon icon = new ImageIcon(imagem2);
                   if (flag==0) {
-                      
                       jLabel2.setIcon(icon);
-                      //Container contentPane = getContentPane();
-                      //contentPane.setLayout(new GridLayout());
-                      //contentPane.add(new JScrollPane(jLabel1));
                       flag=1;
                   }
                   else jLabel2.setIcon(icon);
-                 
-                  if (this.imagem2 != null ) {
-                    //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
-                  }
-                  
+                                   
                   jScrollPane2.setSize(this.getWidth() / 2 - 50, this.getHeight()-150);
                   jScrollPane1.setSize(this.getWidth() / 2-50, this.getHeight()- 150);
                   jLabel1.setSize(jScrollPane1.getWidth()-50, jScrollPane1.getHeight()-50);
                   jLabel1.setSize(jScrollPane2.getWidth()-50, jScrollPane2.getHeight()-50);
                   jScrollPane2.setLocation((this.getWidth() / 2) + 10, 0);
                   jScrollPane1.setLocation(10, 0);
+                  jScrollPane2.setVisible(true);
 
 	    }
 	    catch(IOException e){
@@ -680,9 +649,9 @@ public class NewJFrame extends javax.swing.JFrame {
         }  
     }
 
-    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {   
+    private void menuCorrecaoGammaActionPerformed(java.awt.event.ActionEvent evt) {   
         this.quem_chamou = 3;
-        //transparencia
+
         jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
@@ -731,23 +700,21 @@ public class NewJFrame extends javax.swing.JFrame {
         
         if (this.quem_chamou != 3)
             return;
-        
-        panelSlider.setVisible(true);
-        //sliderMain.setValue(10);
         if (this.imagem1 == null)
             return;
         
+        panelSlider.setVisible(true);
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
-        
-        double valor_gamma = (double) sliderMain.getValue() / 10;
+        double valorGamma = (double) sliderMain.getValue() / 10;
+
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) { 				
                Color c = new Color(imagem2.getRGB(i, j));
                              
-               int red = this.correcaoGamma(255, c.getRed(), valor_gamma);
-               int green = this.correcaoGamma(255, c.getGreen(), valor_gamma);
-               int blue = this.correcaoGamma(255, c.getBlue(), valor_gamma);
+               int red = this.correcaoGamma(255, c.getRed(), valorGamma);
+               int green = this.correcaoGamma(255, c.getGreen(), valorGamma);
+               int blue = this.correcaoGamma(255, c.getBlue(), valorGamma);
                
                Color color = new Color(red, green, blue);
                imagem1.setRGB(i, j, color.getRGB());
@@ -801,10 +768,15 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }
     
-    public int correcaoGamma(double c, int original, double gamma) {
-        double r = original / 255.0; // Normaliza para [0, 1]
-        double s = c * Math.pow(r, gamma); // Aplica a transformação
-        return (int) Math.round(Math.min(255, Math.max(0, s))); // Garante o intervalo [0, 255]
+    public int correcaoGamma(double constante, int rgbOriginal, double valorGamma) {
+        double rgbNormalizado = rgbOriginal / 255.0; // Normaliza para [0, 1]
+        double rgbResultado = constante * Math.pow(rgbNormalizado, valorGamma); // Aplica a transformação
+        
+        return (int) Math.round(
+            Math.min(255, Math.max(
+                0, rgbResultado)
+            )
+        ); // Garante o intervalo [0, 255]
     }    
     
     /**
@@ -858,12 +830,11 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
-    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JMenuItem menuSobrepor;
+    private javax.swing.JMenuItem menuTransparencia;
     private javax.swing.JPanel panelSlider;
     private javax.swing.JSlider sliderMain;
     // End of variables declaration//GEN-END:variables
