@@ -261,6 +261,8 @@ public class NewJFrame extends javax.swing.JFrame {
         File file = chooser.getSelectedFile();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
+            // percorre as linhas procurando o tipo da imagem
+            // e ignora linhas de comentario
             String linha;
             do {
                 linha = br.readLine();
@@ -272,10 +274,12 @@ public class NewJFrame extends javax.swing.JFrame {
 
             int width = 0;
             int height = 0;
-            
+            // percorre as linhas procurando o width e heigth
             while ((linha = br.readLine()) != null) {
                 linha = linha.trim();
-                if (linha.startsWith("#") || linha.isEmpty()) continue;
+                
+                if (linha.startsWith("#") || linha.isEmpty()) 
+                    continue;
 
                 String[] tamanho = linha.split("\\s+");
                 if (tamanho.length >= 2) {
@@ -285,27 +289,30 @@ public class NewJFrame extends javax.swing.JFrame {
                 }
             }
 
-            int maxColor = 255;
+            // percorre para encontrar a quantiadade de cores e verifica se é 255
+            int qtdCores = 255;
             while ((linha = br.readLine()) != null) {
                 linha = linha.trim();
                 if (linha.startsWith("#") || linha.isEmpty()) continue;
 
-                maxColor = Integer.parseInt(linha);
-                if (maxColor != 255) {
+                qtdCores = Integer.parseInt(linha);
+                if (qtdCores != 255) {
                     throw new IOException("Valor máximo de cor diferente de 255 não suportado");
                 }
                 break;
             }
 
+            // popula a lista de rgb, com os bytes encontrados, depois de ler o cabeçalho
             List<Integer> rgbList = new ArrayList<>();
             while ((linha = br.readLine()) != null) {
                 linha = linha.trim();
-                if (linha.startsWith("#") || linha.isEmpty()) continue;
+                if (linha.startsWith("#") || linha.isEmpty()) 
+                   continue;
 
-                String[] values = linha.split("\\s+");
-                for (String val : values) {
+                String[] data = linha.split("\\s+");
+                for (String val : data) {
                     if (!val.isEmpty())
-                        rgbList.add(Integer.parseInt(val));
+                       rgbList.add(Integer.parseInt(val));
                 }
             }
 
