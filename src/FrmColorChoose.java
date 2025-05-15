@@ -19,7 +19,7 @@ public class FrmColorChoose extends javax.swing.JDialog {
      */
     static int MODAL_RESULT = JOptionPane.CANCEL_OPTION;
     
-    public Color getCorEscolhida(){
+    public Color getCorSelecionada(){
         return jColorChooser1.getColor();
     }
     

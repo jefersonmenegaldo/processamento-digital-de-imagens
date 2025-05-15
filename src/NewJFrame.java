@@ -261,36 +261,36 @@ public class NewJFrame extends javax.swing.JFrame {
         File file = chooser.getSelectedFile();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
-            String line;
-
+            String linha;
             do {
-                line = br.readLine();
-            } while (line != null && (line.trim().isEmpty() || line.trim().startsWith("#")));
+                linha = br.readLine();
+            } while (linha != null && (linha.trim().isEmpty() || linha.trim().startsWith("#")));
 
-            if (!line.trim().equals("P3")) {
+            if (!linha.trim().equals("P3")) {
                 throw new IOException("Formato inválido. Esperado: P3");
             }
 
             int width = 0;
             int height = 0;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty()) continue;
+            
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                if (linha.startsWith("#") || linha.isEmpty()) continue;
 
-                String[] parts = line.split("\\s+");
-                if (parts.length >= 2) {
-                    width = Integer.parseInt(parts[0]);
-                    height = Integer.parseInt(parts[1]);
+                String[] tamanho = linha.split("\\s+");
+                if (tamanho.length >= 2) {
+                    width = Integer.parseInt(tamanho[0]);
+                    height = Integer.parseInt(tamanho[1]);
                     break;
                 }
             }
 
             int maxColor = 255;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty()) continue;
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                if (linha.startsWith("#") || linha.isEmpty()) continue;
 
-                maxColor = Integer.parseInt(line);
+                maxColor = Integer.parseInt(linha);
                 if (maxColor != 255) {
                     throw new IOException("Valor máximo de cor diferente de 255 não suportado");
                 }
@@ -298,11 +298,11 @@ public class NewJFrame extends javax.swing.JFrame {
             }
 
             List<Integer> rgbList = new ArrayList<>();
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty()) continue;
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                if (linha.startsWith("#") || linha.isEmpty()) continue;
 
-                String[] values = line.split("\\s+");
+                String[] values = linha.split("\\s+");
                 for (String val : values) {
                     if (!val.isEmpty())
                         rgbList.add(Integer.parseInt(val));
@@ -315,13 +315,14 @@ public class NewJFrame extends javax.swing.JFrame {
 
             BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             int idx = 0;
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
                     int r = rgbList.get(idx++);
                     int g = rgbList.get(idx++);
                     int b = rgbList.get(idx++);
-                    int rgb = (r << 16) | (g << 8) | b;
-                    imagem.setRGB(x, y, rgb);
+                    
+                    Color c = new Color(r,g, b);
+                    imagem.setRGB(j, i, c.getRGB());
                 }
             }
 
@@ -348,7 +349,7 @@ public class NewJFrame extends javax.swing.JFrame {
         
         int width = imagem1.getWidth();
 	    int height = imagem1.getHeight();
-        Color corSelecionada = frm.getCorEscolhida();
+        Color corSelecionada = frm.getCorSelecionada();
         
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) { 				
@@ -389,7 +390,7 @@ public class NewJFrame extends javax.swing.JFrame {
 	    }
         }
         imagem1 = null;
-        imagem1 = copiarImagemPixelPorPixel(invertida);
+        imagem1 = copiarImagem(invertida);
         imagem1Icon = new ImageIcon(invertida);
         jLabel1.setIcon(imagem1Icon);
         this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
@@ -397,7 +398,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void menuEspelharVertical(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEspelharVertical
         int width = imagem1.getWidth();
-	    int height = imagem1.getHeight();
+	int height = imagem1.getHeight();
         
         BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
                
@@ -411,7 +412,7 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         
         imagem1 = null;
-        imagem1 = copiarImagemPixelPorPixel(invertida);
+        imagem1 = copiarImagem(invertida);
         imagem1Icon = new ImageIcon(invertida);
         jLabel1.setIcon(imagem1Icon);
         this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
@@ -419,7 +420,6 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
-        //panelSlider.setVisible(false);
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif");
         chooser.setFileFilter(filter);
@@ -435,19 +435,11 @@ public class NewJFrame extends javax.swing.JFrame {
                   System.out.println("Arquivo aberto com sucesso!");
                   imagem1Icon = new ImageIcon(imagem1);
                   if (flag==0) {
-                      
                       jLabel1.setIcon(imagem1Icon);
-                      //Container contentPane = getContentPane();
-                      //contentPane.setLayout(new GridLayout());
-                      //contentPane.add(new JScrollPane(jLabel1));
                       flag=1;
                   }
                   else jLabel1.setIcon(imagem1Icon);
                   
-                  
-                  if (this.imagem1 != null ) {
-                    //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
-                  }
                   jScrollPane1.setSize(this.getWidth(), this.getHeight());
 	    }
 	    catch(IOException e){
@@ -463,26 +455,22 @@ public class NewJFrame extends javax.swing.JFrame {
         System.exit(1);
     }
 
-    public BufferedImage copiarImagemPixelPorPixel(BufferedImage original) {
-        int largura = original.getWidth();
-        int altura = original.getHeight();
+    public BufferedImage copiarImagem(BufferedImage imagemOriginal) {
+        int width = imagemOriginal.getWidth();
+        int height = imagemOriginal.getHeight();
+        BufferedImage novaImagem = new BufferedImage(width, height, imagemOriginal.getType());
 
-        BufferedImage copia = new BufferedImage(largura, altura, original.getType());
-
-        for (int y = 0; y < altura; y++) {
-            for (int x = 0; x < largura; x++) {
-                int rgb = original.getRGB(x, y);
-                copia.setRGB(x, y, rgb);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int rgb = imagemOriginal.getRGB(j, i);
+                novaImagem.setRGB(j, i, rgb);
             }
         }
-
-        return copia;
+        return novaImagem;
     }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        //panelSlider.setVisible(false);
         JFileChooser chooser = new JFileChooser();
-        
         
         FileNameExtensionFilter filtroPNG = new FileNameExtensionFilter("PNG (*.png)", "png");
         FileNameExtensionFilter filtroJPG = new FileNameExtensionFilter("JPEG (*.jpg)", "jpg", "jpeg");
@@ -493,69 +481,65 @@ public class NewJFrame extends javax.swing.JFrame {
         chooser.addChoosableFileFilter(filtroJPG);
         chooser.addChoosableFileFilter(filtroBMP);
         chooser.addChoosableFileFilter(filtroGIF);
-        chooser.setFileFilter(filtroPNG); 
-        chooser.setDialogTitle("Salvar imagem");
 
+        chooser.setFileFilter(filtroPNG); 
+
+        chooser.setDialogTitle("Salvar imagem");
         int op = chooser.showSaveDialog(this);
-        if(op == JFileChooser.APPROVE_OPTION){        
-            File arq = chooser.getSelectedFile();  
-            FileNameExtensionFilter filtroSelecionado = (FileNameExtensionFilter) chooser.getFileFilter();
-            String extensao = filtroSelecionado.getExtensions()[0];
-            String path = arq.toString() +'.'+ extensao;  
-            try {
-		ImageIO.write(imagem1,"jpg",new File(path));
-		System.out.println("Arquivo salvo com sucesso!");
-		}
-		catch(IOException e){
-			System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
-		}
-		catch(Exception e){
-			System.out.println("Erro Exception! " + e.getMessage());
-		}
+    
+        if(op != JFileChooser.APPROVE_OPTION)
+            return;       
+    
+        File arq = chooser.getSelectedFile();  
+        FileNameExtensionFilter filtroSelecionado = (FileNameExtensionFilter) chooser.getFileFilter();
+        String extensao = filtroSelecionado.getExtensions()[0];
+        String path = arq.toString() +'.'+ extensao;  
+        try {
+            ImageIO.write(imagem1,extensao,new File(path));
+            System.out.println("Arquivo salvo com sucesso!");
+        }
+        catch(IOException e){
+                System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
+        }
+        catch(Exception e){
+                System.out.println("Erro Exception! " + e.getMessage());
         }
     }
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        //panelSlider.setVisible(false);
+        
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
-	    for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) { 				
-                   //int rgb = imagem1.getRGB(i, j); 	//a cor inversa é dado por 255 menos o valor de cada canal 				
-                   //int r = 255 - (int)((rgb&0x00FF0000)>>>16);
-		   //int g = 255 - (int)((rgb&0x0000FF00)>>>8);
-		   //int b = 255 - (int) (rgb&0x000000FF);
-                   Color cor = new Color(imagem1.getRGB(i, j));
-                   int r = 255 - cor.getRed();
-                   int g = 255 - cor.getGreen();
-                   int b = 255 - cor.getBlue();
-		   Color color = new Color(r, g, b);
-		   imagem1.setRGB(i, j, color.getRGB());
-	    }
+        int height = imagem1.getHeight();
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+                Color cor = new Color(imagem1.getRGB(i, j));
+                int r = 255 - cor.getRed();
+                int g = 255 - cor.getGreen();
+                int b = 255 - cor.getBlue();
+                   Color color = new Color(r, g, b);
+                   imagem1.setRGB(i, j, color.getRGB());
+            }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-
-
     }
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {                                           
-       //panelSlider.setVisible(false);
-       int width = imagem1.getWidth();
-       int height = imagem1.getHeight();
-	    for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) { 				
-                   Color c = new Color(imagem1.getRGB(i, j));
-                   int y = (int)(0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
-		   Color color = new Color(y, y, y);
-		   imagem1.setRGB(i, j, color.getRGB());
-	    }
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+                Color c = new Color(imagem1.getRGB(i, j));
+                int y = (int)(0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
+                Color color = new Color(y, y, y);
+                imagem1.setRGB(i, j, color.getRGB());
+            }
         }
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }
 
     private void menuTransparenciaActionPerformed(java.awt.event.ActionEvent evt) {  
         this.quem_chamou = 2;
-        
         jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
@@ -597,7 +581,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private void menuSobreporActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //sobrepor imagens
         this.quem_chamou = 1;
-        this.imagem3 = copiarImagemPixelPorPixel(this.imagem2);
+        this.imagem3 = copiarImagem(this.imagem2);
 
         panelSlider.setSize(this.getWidth(), 120);
         panelSlider.setVisible(true);
@@ -673,7 +657,6 @@ public class NewJFrame extends javax.swing.JFrame {
         
         //correcao gamma
         panelSlider.setVisible(true);
-        //sliderMain.setValue(10);
         if (this.imagem1 == null)
             return;
         
@@ -712,9 +695,9 @@ public class NewJFrame extends javax.swing.JFrame {
             for (int j = 0; j < height; j++) { 				
                Color c = new Color(imagem2.getRGB(i, j));
                              
-               int red = this.correcaoGamma(255, c.getRed(), valorGamma);
-               int green = this.correcaoGamma(255, c.getGreen(), valorGamma);
-               int blue = this.correcaoGamma(255, c.getBlue(), valorGamma);
+               int red = this.aplicaCorrecaoGamma(255, c.getRed(), valorGamma);
+               int green = this.aplicaCorrecaoGamma(255, c.getGreen(), valorGamma);
+               int blue = this.aplicaCorrecaoGamma(255, c.getBlue(), valorGamma);
                
                Color color = new Color(red, green, blue);
                imagem1.setRGB(i, j, color.getRGB());
@@ -730,7 +713,7 @@ public class NewJFrame extends javax.swing.JFrame {
         
         //sobrepor imagens
         panelSlider.setVisible(true);
-        //sliderMain.setValue(10);
+        
         if (this.imagem1 == null)
             return;
         
@@ -738,11 +721,7 @@ public class NewJFrame extends javax.swing.JFrame {
         int height = imagem1.getHeight();
         int value = sliderMain.getValue();
         double transparencia = value / 10.0;
-        /*if (this.ultimo_valor_slider == 0 || this.ultimo_valor_slider > value) {
-            JOptionPane.showMessageDialog(this, "aumentou");
-        } else
-          JOptionPane.showMessageDialog(this, "diminuiu");
-        */
+        
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) { 
                 Color c1;
@@ -768,15 +747,11 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }
     
-    public int correcaoGamma(double constante, int rgbOriginal, double valorGamma) {
-        double rgbNormalizado = rgbOriginal / 255.0; // Normaliza para [0, 1]
-        double rgbResultado = constante * Math.pow(rgbNormalizado, valorGamma); // Aplica a transformação
+    public int aplicaCorrecaoGamma(double constante, int rgbOriginal, double valorGamma) {
+        double rgbNormalizado = rgbOriginal / 255.0; 
+        double rgbResultado = constante * Math.pow(rgbNormalizado, valorGamma); 
         
-        return (int) Math.round(
-            Math.min(255, Math.max(
-                0, rgbResultado)
-            )
-        ); // Garante o intervalo [0, 255]
+        return (int) Math.round(Math.min(255, Math.max(0, rgbResultado))); 
     }    
     
     /**
