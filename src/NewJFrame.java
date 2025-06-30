@@ -6,12 +6,14 @@
 /**
  * @author ionildo
  */
+import Utils.frmRaio;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import javax.swing.filechooser.*;
 
@@ -89,9 +91,19 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenu3.setText("Filtros");
 
         jMenuItem9.setText("Filtro da Média");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem9);
 
         jMenuItem10.setText("Filtro da Mediana");
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem10ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem10);
 
         jMenu2.add(jMenu3);
@@ -184,6 +196,51 @@ public class NewJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    public int GetValorCinza(int x, int y){
+        Color cor = new Color(imagem1.getRGB(x, y));
+        return cor.getRed();
+    }
+
+    public int GetMediaVizinhosCinza(int x, int y, int raio, BufferedImage imagem) {
+        int largura = imagem.getWidth();
+        int altura = imagem.getHeight();
+        int soma = 0;
+
+        int count = 0;
+        for (int dx = -raio; dx <= raio; dx++) {
+            for (int dy = -raio; dy <= raio; dy++) {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (nx >= 0 && nx < largura && ny >= 0 && ny < altura) {
+                    soma += GetValorCinza(nx, ny); 
+                    count++;
+                }
+            }
+        }
+        return soma / count;
+    }
+    
+    public ArrayList<Integer> GetMedianaVizinhosCinza(int x, int y, int raio, BufferedImage imagem, ArrayList<Integer> listaValores) {
+        int largura = imagem.getWidth();
+        int altura = imagem.getHeight();
+
+        for (int dx = -raio; dx <= raio; dx++) {
+            for (int dy = -raio; dy <= raio; dy++) {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (nx >= 0 && nx < largura && ny >= 0 && ny < altura) {
+                    listaValores.add(GetValorCinza(nx, ny)); 
+                }
+            }
+        }
+        return listaValores;
+    }
+
+    
+    
+    
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
         
         int width = imagem1.getWidth();
@@ -193,24 +250,95 @@ public class NewJFrame extends javax.swing.JFrame {
         Random random = new Random();
         
         for (int i = 0; i < qtdPixelsComRuido; i++) {
-        
             int x = random.nextInt(width);
             int y = random.nextInt(height);
-            
-            Color cor = new Color(imagem1.getRGB(x, y));
-
-            int r = cor.getRed();
-            int tomDeCinza = (r > 127) ? 255: 0;
+            int tomDeCinza = (GetValorCinza(x, y) > 127) ? 255: 0;
 
             Color color = new Color(tomDeCinza, tomDeCinza, tomDeCinza);
-            imagem1.setRGB(x, y, color.getRGB());
-            
-            
+            imagem1.setRGB(x, y, color.getRGB());            
         }
         
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        //media
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        
+        try {
+            frmRaio frmRaio = new frmRaio(null, true);
+            frmRaio.setVisible(true);
+
+            if (frmRaio.MODAL_RESULT != JOptionPane.OK_OPTION)
+                return;
+
+            int raio = frmRaio.getRaio();
+            int tamanhoBorda = raio;
+            for (int i = tamanhoBorda; i < width -tamanhoBorda; i++) {
+                for (int j = tamanhoBorda; j < height -tamanhoBorda; j++) { 				
+
+                    int mediaValoresCinza = GetMediaVizinhosCinza(i, j, raio, imagem1);
+                    
+                    if (mediaValoresCinza < 0 || mediaValoresCinza > 255) {
+                      continue;  
+                    }
+                    
+                    Color color = new Color(mediaValoresCinza, mediaValoresCinza, mediaValoresCinza);
+                    imagem1.setRGB(i, j, color.getRGB());
+                }
+            }
+            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        } catch(Exception e) {
+            System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
+        }  
+        
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+        // mediana
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        
+        
+        try {
+            frmRaio frmRaio = new frmRaio(null, true);
+            frmRaio.setVisible(true);
+
+            if (frmRaio.MODAL_RESULT != JOptionPane.OK_OPTION)
+                return;
+
+            int raio = frmRaio.getRaio();
+            int tamanhoBorda = raio;
+            for (int i = tamanhoBorda; i < width -tamanhoBorda; i++) {
+                for (int j = tamanhoBorda; j < height -tamanhoBorda; j++) { 				
+                    ArrayList<Integer> valores = new ArrayList<>();    
+                    valores = GetMedianaVizinhosCinza(i, j, raio, imagem1, valores);
+                    Collections.sort(valores);
+                    
+                    int meioDoVetor = valores.size() / 2;
+                    int medianaValoresCinza = 0;
+                    if (valores.size() % 2 == 0){
+                        medianaValoresCinza = valores.get(meioDoVetor);
+                    } else {
+                        medianaValoresCinza = valores.get(meioDoVetor);
+                    }
+                                     
+                    if (medianaValoresCinza < 0 || medianaValoresCinza > 255) {
+                      continue;  
+                    }
+                    
+                    Color color = new Color(medianaValoresCinza, medianaValoresCinza, medianaValoresCinza);
+                    imagem1.setRGB(i, j, color.getRGB());
+                    valores.clear();
+                }
+            }
+            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        } catch(Exception e) {
+            System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
+        }  
+    }//GEN-LAST:event_jMenuItem10ActionPerformed
+   
     /**
      * @param args the command line arguments
      */
