@@ -117,6 +117,11 @@ public class NewJFrame extends javax.swing.JFrame {
         jMenu2.add(jMenuItem7);
 
         jMenuItem8.setText("Determinar Valor das Moedas");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem8);
 
         jMenuBar1.add(jMenu2);
@@ -343,6 +348,45 @@ public class NewJFrame extends javax.swing.JFrame {
         }  
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        int width = imagem1.getWidth();
+	int height = imagem1.getHeight();
+       
+        //converte imagem para binaria
+        
+        BufferedImage imagemData = converterParaBinario(this.imagem1);
+        
+        imagemData = erosao(imagemData);
+        //imagemData = erosao(imagemData);
+        //imagemData = erosao(imagemData);
+        //imagemData = erosao(imagemData);
+        //imagemData = erosao(imagemData);
+        
+        imagemData = dilatacao(imagemData);
+        //imagemData = dilatacao(imagemData);
+        //imagemData = dilatacao(imagemData);
+        //imagemData = dilatacao(imagemData);
+        //imagemData = dilatacao(imagemData);
+        
+        
+        
+        /*for (int i = 0; i < qtdPixelsComRuido; i++) {
+            int x = random.nextInt(width);
+            int y = random.nextInt(height);
+            int tomDeCinza = (GetValorCinza(x, y) > 127) ? 255: 0;
+
+            Color color = new Color(tomDeCinza, tomDeCinza, tomDeCinza);
+            imagem1.setRGB(x, y, color.getRGB());            
+        }
+        
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        */
+        this.imagem1 = imagemData;
+        ImageIcon icon = new ImageIcon(this.imagem1);
+        jLabel1.setIcon(icon);
+        this.imageUpdate(imagemData, ALLBITS, 0, 0, width, height);
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
+
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // Sobel
         int width = imagem1.getWidth();
@@ -391,6 +435,135 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagemSaida, ALLBITS, 0, 0, width, height);
 
     }
+    
+    public BufferedImage converterParaBinario(BufferedImage imagem) {
+        int largura = imagem.getWidth();
+        int altura = imagem.getHeight();
+
+        BufferedImage binaria = new BufferedImage(largura, altura, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int i = 0; i< altura; i++) {
+            for (int j = 0; j < largura; j++) {
+                Color cor = new Color(imagem.getRGB(i, j));
+
+                int tomDeCinza = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
+
+                int tomBinario = (tomDeCinza < 128) ? 0 : 255;
+                Color color = new Color(tomBinario, tomBinario, tomBinario);
+
+                binaria.setRGB(i, j, color.getRGB());
+            }
+        }
+
+        return binaria;
+    }
+    
+    public BufferedImage dilatacao(BufferedImage imagem) {
+        int[][] elemento = {
+            {0, 1, 0},
+            {1, 1, 1},
+            {0, 1, 0}
+        };
+        int width = imagem.getWidth();
+        int height = imagem.getHeight();
+        int eAltura = elemento.length;
+        int eLargura = elemento[0].length;
+
+        // Centro do elemento estruturante
+        int cx = eLargura / 2;
+        int cy = eAltura / 2;
+
+        // Cria imagem de saída
+        BufferedImage resultado = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+
+                boolean hit = false;
+
+                for (int j = 0; j < eAltura; j++) {
+                    for (int i = 0; i < eLargura; i++) {
+                        if (elemento[j][i] == 1) {
+                            int bx = x + (i - cx);
+                            int by = y + (j - cy);
+
+                            if (bx >= 0 && bx < width && by >= 0 && by < height) {
+                                Color cor = new Color(imagem.getRGB(bx, by));
+                                int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
+
+                                if (media < 128) { // pixel preto
+                                    hit = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (hit) break;
+                }
+
+                int corFinal = hit ? 0 : 255; // preto se bateu, branco se não
+                Color novaCor = new Color(corFinal, corFinal, corFinal);
+                resultado.setRGB(x, y, novaCor.getRGB());
+            }
+        }
+        return resultado;
+    }
+
+    public BufferedImage erosao(BufferedImage imagem) {
+        int[][] elemento = {
+            {0, 1, 0},
+            {1, 1, 1},
+            {0, 1, 0}
+        };
+        int width = imagem.getWidth();
+        int height = imagem.getHeight();
+        int eAltura = elemento.length;
+        int eLargura = elemento[0].length;
+
+        int cx = eLargura / 2;
+        int cy = eAltura / 2;
+
+        BufferedImage resultado = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+
+                boolean cabe = true;
+
+                for (int j = 0; j < eAltura; j++) {
+                    for (int i = 0; i < eLargura; i++) {
+                        if (elemento[j][i] == 1) {
+                            int bx = x + (i - cx);
+                            int by = y + (j - cy);
+
+                            if (bx < 0 || bx >= width || by < 0 || by >= height) {
+                                cabe = false;
+                                break;
+                            }
+
+                            Color cor = new Color(imagem.getRGB(bx, by));
+                            int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
+
+                            if (media >= 128) { // se for branco
+                                cabe = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!cabe) break;
+                }
+
+                int corFinal = cabe ? 0 : 255; // preto se couber o EE, senão branco
+                Color novaCor = new Color(corFinal, corFinal, corFinal);
+                resultado.setRGB(x, y, novaCor.getRGB());
+            }
+        }
+
+        return resultado;
+    }
+
+
+
    
     /**
      * @param args the command line arguments
