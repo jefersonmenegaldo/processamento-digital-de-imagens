@@ -108,7 +108,12 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jMenu2.add(jMenu3);
 
-        jMenuItem7.setText("jMenuItem7");
+        jMenuItem7.setText("Detectar Bordas (Sobel)");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem7);
 
         jMenuItem8.setText("Determinar Valor das Moedas");
@@ -299,8 +304,7 @@ public class NewJFrame extends javax.swing.JFrame {
         // mediana
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
-        
-        
+                
         try {
             frmRaio frmRaio = new frmRaio(null, true);
             frmRaio.setVisible(true);
@@ -338,6 +342,55 @@ public class NewJFrame extends javax.swing.JFrame {
             System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
         }  
     }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        // Sobel
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+
+        BufferedImage imagemSaida = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        // Máscaras Sobel 3x3
+        int[][] sobelX = {
+            { -1, 0, 1 },
+            { -2, 0, 2 },
+            { -1, 0, 1 }
+        };
+
+        int[][] sobelY = {
+            { -1, -2, -1 },
+            {  0,  0,  0 },
+            {  1,  2,  1 }
+        };
+
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+
+                int gx = 0;
+                int gy = 0;
+
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        int pixel = new Color(imagem1.getRGB(i + x, j + y)).getRed(); // assume imagem em tons de cinza
+                        gx += pixel * sobelX[x + 1][y + 1];
+                        gy += pixel * sobelY[x + 1][y + 1];
+                    }
+                }
+
+                int g = Math.abs(gx) + Math.abs(gy); // aproximação de |G|
+                g = Math.min(255, g); // limita ao intervalo válido
+
+                Color cor = new Color(g, g, g);
+                imagemSaida.setRGB(i, j, cor.getRGB());
+            }
+        }
+
+        this.imagem1 = imagemSaida;
+        ImageIcon icon = new ImageIcon(this.imagem1);
+        jLabel1.setIcon(icon);
+        this.imageUpdate(imagemSaida, ALLBITS, 0, 0, width, height);
+
+    }
    
     /**
      * @param args the command line arguments
