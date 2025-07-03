@@ -17,9 +17,10 @@ public class frmRaio extends javax.swing.JDialog {
      * Creates new form frmRaio
      */
     public frmRaio(java.awt.Frame parent, boolean modal) {
+        
         super(parent, modal);
         initComponents();
-        
+        this.setLocationRelativeTo(null);
         BtnOk.addActionListener(e -> {
             MODAL_RESULT = JOptionPane.OK_OPTION;
             this.dispose();
@@ -50,6 +51,7 @@ public class frmRaio extends javax.swing.JDialog {
         BtnOk = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Raio");
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Tamanho do Raio");

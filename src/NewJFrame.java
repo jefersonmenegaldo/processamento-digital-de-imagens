@@ -30,6 +30,8 @@ public class NewJFrame extends javax.swing.JFrame {
    
     public NewJFrame() {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     /**
@@ -176,7 +178,7 @@ public class NewJFrame extends javax.swing.JFrame {
                       flag=1;
                   }
                   else jLabel1.setIcon(icon);
-                  setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
+                  //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
 	    }
 	    catch(IOException e){
 		System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
@@ -219,18 +221,18 @@ public class NewJFrame extends javax.swing.JFrame {
     }
 
     public int GetMediaVizinhosCinza(int x, int y, int raio, BufferedImage imagem) {
-        int largura = imagem.getWidth();
-        int altura = imagem.getHeight();
+        int width = imagem.getWidth();
+        int height = imagem.getHeight();
         int soma = 0;
 
         int count = 0;
-        for (int dx = -raio; dx <= raio; dx++) {
-            for (int dy = -raio; dy <= raio; dy++) {
-                int nx = x + dx;
-                int ny = y + dy;
+        for (int i = -raio; i <= raio; i++) {
+            for (int j = -raio; j <= raio; j++) {
+                int x_vizinho = x + i;
+                int y_vizinho = y + j;
 
-                if (nx >= 0 && nx < largura && ny >= 0 && ny < altura) {
-                    soma += GetValorCinza(nx, ny); 
+                if (x_vizinho >= 0 && x_vizinho < width && y_vizinho >= 0 && y_vizinho < height) {
+                    soma += GetValorCinza(x_vizinho, y_vizinho); 
                     count++;
                 }
             }
@@ -241,14 +243,13 @@ public class NewJFrame extends javax.swing.JFrame {
     public ArrayList<Integer> GetMedianaVizinhosCinza(int x, int y, int raio, BufferedImage imagem, ArrayList<Integer> listaValores) {
         int largura = imagem.getWidth();
         int altura = imagem.getHeight();
+        for (int i = -raio; i <= raio; i++) {
+            for (int j = -raio; j <= raio; j++) {
+                int x_vizinho = x + i;
+                int y_vizinho = y + j;
 
-        for (int dx = -raio; dx <= raio; dx++) {
-            for (int dy = -raio; dy <= raio; dy++) {
-                int nx = x + dx;
-                int ny = y + dy;
-
-                if (nx >= 0 && nx < largura && ny >= 0 && ny < altura) {
-                    listaValores.add(GetValorCinza(nx, ny)); 
+                if (x_vizinho >= 0 && x_vizinho < largura && y_vizinho >= 0 && y_vizinho < altura) {
+                    listaValores.add(GetValorCinza(x_vizinho, y_vizinho)); 
                 }
             }
         }
@@ -266,16 +267,35 @@ public class NewJFrame extends javax.swing.JFrame {
                 matriz[y][x] = (media < 128) ? 1 : 0;
             }
         }
-        
         return matriz;
     }
     
+    public int[] contaQtdMoedas(List<Integer> areasDetectadas) {
+        int[] moedas = new int[5];
+        for (int area : areasDetectadas) {
+            
+            if (area > 60000 && area < 70000) {
+                moedas[1]++;
+                continue;
+            }
+            if (area > 50000 && area < 60000) {
+                moedas[2]++;
+                continue;
+            }
+            if (area > 40000 && area < 50000) {
+                moedas[0]++;
+            }
+            if (area > 60000 && area < 100000) {
+                moedas[3]++;
+            }
+        }
+        return moedas;
+    }
     
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        
+        // sal e pimenta
         int width = imagem1.getWidth();
 	int height = imagem1.getHeight();
-       
         int qtdPixelsComRuido = (int) ((width * height) * 0.05);
         Random random = new Random();
         
@@ -307,13 +327,11 @@ public class NewJFrame extends javax.swing.JFrame {
             int tamanhoBorda = raio;
             for (int i = tamanhoBorda; i < width -tamanhoBorda; i++) {
                 for (int j = tamanhoBorda; j < height -tamanhoBorda; j++) { 				
-
                     int mediaValoresCinza = GetMediaVizinhosCinza(i, j, raio, imagem1);
-                    
+
                     if (mediaValoresCinza < 0 || mediaValoresCinza > 255) {
                       continue;  
                     }
-                    
                     Color color = new Color(mediaValoresCinza, mediaValoresCinza, mediaValoresCinza);
                     imagem1.setRGB(i, j, color.getRGB());
                 }
@@ -322,7 +340,6 @@ public class NewJFrame extends javax.swing.JFrame {
         } catch(Exception e) {
             System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
         }  
-        
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
@@ -347,12 +364,8 @@ public class NewJFrame extends javax.swing.JFrame {
                     
                     int meioDoVetor = valores.size() / 2;
                     int medianaValoresCinza;
-                    if (valores.size() % 2 == 0){
-                        medianaValoresCinza = valores.get(meioDoVetor);
-                    } else {
-                        medianaValoresCinza = valores.get(meioDoVetor);
-                    }                    
-                    
+                    medianaValoresCinza = valores.get(meioDoVetor);
+                                     
                     Color color = new Color(medianaValoresCinza, medianaValoresCinza, medianaValoresCinza);
                     imagem1.setRGB(i, j, color.getRGB());
                     valores.clear();
@@ -365,6 +378,7 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        // contar moedas
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
 
@@ -381,54 +395,36 @@ public class NewJFrame extends javax.swing.JFrame {
         // 3. Converte imagem binária para matriz 0 (fundo) e 1 (moeda)
         int imagemMatriz[][] = ConverterBufferedImageToMatriz(imagemData);
 
-        // 4. Detecta moedas com flood fill e mede área
-        List<Integer> areas = new ArrayList<>();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (imagemMatriz[y][x] == 1) {
-                    int area = floodFill(imagemMatriz, x, y);
-                    if (area > 100) { // ignora ruídos pequenos
-                        areas.add(area);
+        // 4. mede área
+        List<Integer> areasDetectadas = new ArrayList<>();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (imagemMatriz[i][j] == 1) {
+                    int area = contaAreaMoedas(imagemMatriz, j, i);
+                    if (area > 500) {
+                        areasDetectadas.add(area);
                     }
                 }
             }
         }
 
         // 5. Classifica moedas por tamanho aproximado
-        int moedas5 = 0, moedas10 = 0, moedas25 = 0, moedas50 = 0, moedas1 = 0;
+        int[] moedas = contaQtdMoedas(areasDetectadas); 
         
-        for (int area : areas) {
-            
-            if (area > 60000 && area < 70000) {
-                moedas25++;
-                continue;
-            }
-            if (area > 50000 && area < 60000) {
-                moedas50++;
-                continue;
-            }
-            if (area > 40000 && area < 50000) {
-                moedas10++;
-            }
-            if (area > 60000 && area < 100000) {
-                moedas1++;
-            }
-            
-        }
-        int total = (moedas5 * 5) + (moedas10 * 10) + (moedas25 *25) + (moedas50 * 50) + (moedas1 * 100);
-        
-        
+        double total = (moedas[0] * 10) + (moedas[1] *25) + (moedas[2] * 50) + (moedas[3] * 100);
         total = total / 100;
         
         // 6. Exibe resultados
         JOptionPane.showMessageDialog(this,
-            "Total de moedas: " + areas.size() + "\n" +
-            "5 centavos: " + moedas5 + "\n" +
-            "10 centavos: " + moedas10 + "\n" +
-            "25 centavos: " + moedas25 + "\n" +
-            "50 centavos: " + moedas50 + "\n" +
-            "1 Real: " + moedas1 + "\n" +
-            "Total: " + total + " Reais"
+            String.format(
+                "Total de moedas: %s \n" +
+                "10 centavos: %s \n" +
+                "25 centavos: %s \n" +
+                "50 centavos: %s \n" +
+                "1 Real: %s \n" +
+                "Total: R$ %s  \n",
+                areasDetectadas.size(), moedas[0], moedas[1], moedas[2], moedas[3], total
+            )
         );
 
         this.imagem1 = imagemData;
@@ -437,7 +433,7 @@ public class NewJFrame extends javax.swing.JFrame {
         this.imageUpdate(imagemData, ALLBITS, 0, 0, width, height);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
-    private int floodFill(int[][] matriz, int x, int y) {
+    private int contaAreaMoedas(int[][] matriz, int x, int y) {
         int altura = matriz.length;
         int largura = matriz[0].length;
         Stack<Point> pilha = new Stack<>();
@@ -445,24 +441,24 @@ public class NewJFrame extends javax.swing.JFrame {
         int area = 0;
 
         while (!pilha.isEmpty()) {
-            Point p = pilha.pop();
-            int px = p.x;
-            int py = p.y;
+            Point posicao = pilha.pop();
+            int x_pilha = posicao.x;
+            int y_pilha = posicao.y;
 
-            if (px < 0 || py < 0 || px >= largura || py >= altura)
+            if (x_pilha < 0 || y_pilha < 0 || x_pilha >= largura || y_pilha >= altura)
                 continue;
-            if (matriz[py][px] != 1)
+            
+            if (matriz[y_pilha][x_pilha] != 1)
                 continue;
 
-            matriz[py][px] = -1; // marca como visitado
+            matriz[y_pilha][x_pilha] = -1;
             area++;
 
-            pilha.push(new Point(px + 1, py));
-            pilha.push(new Point(px - 1, py));
-            pilha.push(new Point(px, py + 1));
-            pilha.push(new Point(px, py - 1));
+            pilha.push(new Point(x_pilha + 1, y_pilha));
+            pilha.push(new Point(x_pilha - 1, y_pilha));
+            pilha.push(new Point(x_pilha, y_pilha + 1));
+            pilha.push(new Point(x_pilha, y_pilha - 1));
         }
-
         return area;
     }
 
