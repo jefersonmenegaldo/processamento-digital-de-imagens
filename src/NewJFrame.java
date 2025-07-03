@@ -7,15 +7,22 @@
  * @author ionildo
  */
 import Utils.frmRaio;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import javax.swing.filechooser.*;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 
 public class NewJFrame extends javax.swing.JFrame {
      BufferedImage imagem1;
@@ -149,7 +156,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
 
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif", "jpeg");
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Abrir Imagem");
         int op = chooser.showOpenDialog(this);
@@ -247,8 +254,21 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         return listaValores;
     }
-
     
+    public int[][] ConverterBufferedImageToMatriz(BufferedImage imagem){
+        int width = imagem.getWidth(); 
+        int height = imagem.getHeight(); 
+        int[][] matriz = new int[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Color cor = new Color(imagem.getRGB(x, y));
+                int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
+                matriz[y][x] = (media < 128) ? 1 : 0;
+            }
+        }
+        
+        return matriz;
+    }
     
     
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -326,16 +346,12 @@ public class NewJFrame extends javax.swing.JFrame {
                     Collections.sort(valores);
                     
                     int meioDoVetor = valores.size() / 2;
-                    int medianaValoresCinza = 0;
+                    int medianaValoresCinza;
                     if (valores.size() % 2 == 0){
                         medianaValoresCinza = valores.get(meioDoVetor);
                     } else {
                         medianaValoresCinza = valores.get(meioDoVetor);
-                    }
-                                     
-                    if (medianaValoresCinza < 0 || medianaValoresCinza > 255) {
-                      continue;  
-                    }
+                    }                    
                     
                     Color color = new Color(medianaValoresCinza, medianaValoresCinza, medianaValoresCinza);
                     imagem1.setRGB(i, j, color.getRGB());
@@ -350,58 +366,121 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
-       
-        //converte imagem para binaria
-        
-        BufferedImage imagemData = converterParaBinario(this.imagem1);
-        
-        imagemData = erosao(imagemData);
-        //imagemData = erosao(imagemData);
-        //imagemData = erosao(imagemData);
-        //imagemData = erosao(imagemData);
-        //imagemData = erosao(imagemData);
-        
-        imagemData = dilatacao(imagemData);
-        //imagemData = dilatacao(imagemData);
-        //imagemData = dilatacao(imagemData);
-        //imagemData = dilatacao(imagemData);
-        //imagemData = dilatacao(imagemData);
-        
-        
-        
-        /*for (int i = 0; i < qtdPixelsComRuido; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            int tomDeCinza = (GetValorCinza(x, y) > 127) ? 255: 0;
+        int height = imagem1.getHeight();
 
-            Color color = new Color(tomDeCinza, tomDeCinza, tomDeCinza);
-            imagem1.setRGB(x, y, color.getRGB());            
-        }
+        // Converte imagem para binária
+        BufferedImage imagemData = converterParaBinario(this.imagem1);
+
+        // Pré-processamento morfológico
+        for (int i = 0; i < 4; i++) 
+            imagemData = DilatarImagem(imagemData);
         
-        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        */
+        for (int i = 0; i < 4; i++) 
+            imagemData = ErodirImagem(imagemData);
+
+        // 3. Converte imagem binária para matriz 0 (fundo) e 1 (moeda)
+        int imagemMatriz[][] = ConverterBufferedImageToMatriz(imagemData);
+
+        // 4. Detecta moedas com flood fill e mede área
+        List<Integer> areas = new ArrayList<>();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (imagemMatriz[y][x] == 1) {
+                    int area = floodFill(imagemMatriz, x, y);
+                    if (area > 100) { // ignora ruídos pequenos
+                        areas.add(area);
+                    }
+                }
+            }
+        }
+
+        // 5. Classifica moedas por tamanho aproximado
+        int moedas5 = 0, moedas10 = 0, moedas25 = 0, moedas50 = 0, moedas1 = 0;
+        
+        for (int area : areas) {
+            
+            if (area > 60000 && area < 70000) {
+                moedas25++;
+                continue;
+            }
+            if (area > 50000 && area < 60000) {
+                moedas50++;
+                continue;
+            }
+            if (area > 40000 && area < 50000) {
+                moedas10++;
+            }
+            if (area > 60000 && area < 100000) {
+                moedas1++;
+            }
+            
+        }
+        int total = (moedas5 * 5) + (moedas10 * 10) + (moedas25 *25) + (moedas50 * 50) + (moedas1 * 100);
+        
+        
+        total = total / 100;
+        
+        // 6. Exibe resultados
+        JOptionPane.showMessageDialog(this,
+            "Total de moedas: " + areas.size() + "\n" +
+            "5 centavos: " + moedas5 + "\n" +
+            "10 centavos: " + moedas10 + "\n" +
+            "25 centavos: " + moedas25 + "\n" +
+            "50 centavos: " + moedas50 + "\n" +
+            "1 Real: " + moedas1 + "\n" +
+            "Total: " + total + " Reais"
+        );
+
         this.imagem1 = imagemData;
         ImageIcon icon = new ImageIcon(this.imagem1);
         jLabel1.setIcon(icon);
         this.imageUpdate(imagemData, ALLBITS, 0, 0, width, height);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
+    private int floodFill(int[][] matriz, int x, int y) {
+        int altura = matriz.length;
+        int largura = matriz[0].length;
+        Stack<Point> pilha = new Stack<>();
+        pilha.push(new Point(x, y));
+        int area = 0;
+
+        while (!pilha.isEmpty()) {
+            Point p = pilha.pop();
+            int px = p.x;
+            int py = p.y;
+
+            if (px < 0 || py < 0 || px >= largura || py >= altura)
+                continue;
+            if (matriz[py][px] != 1)
+                continue;
+
+            matriz[py][px] = -1; // marca como visitado
+            area++;
+
+            pilha.push(new Point(px + 1, py));
+            pilha.push(new Point(px - 1, py));
+            pilha.push(new Point(px, py + 1));
+            pilha.push(new Point(px, py - 1));
+        }
+
+        return area;
+    }
+
+    
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // Sobel
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
 
         BufferedImage imagemSaida = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        // Máscaras Sobel 3x3
-        int[][] sobelX = {
+        
+        int[][] mascaraX = {
             { -1, 0, 1 },
             { -2, 0, 2 },
             { -1, 0, 1 }
         };
 
-        int[][] sobelY = {
+        int[][] mascaraY = {
             { -1, -2, -1 },
             {  0,  0,  0 },
             {  1,  2,  1 }
@@ -409,21 +488,17 @@ public class NewJFrame extends javax.swing.JFrame {
 
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
-
                 int gx = 0;
                 int gy = 0;
-
                 for (int x = -1; x <= 1; x++) {
                     for (int y = -1; y <= 1; y++) {
                         int pixel = new Color(imagem1.getRGB(i + x, j + y)).getRed(); // assume imagem em tons de cinza
-                        gx += pixel * sobelX[x + 1][y + 1];
-                        gy += pixel * sobelY[x + 1][y + 1];
+                        gx += pixel * mascaraX[x + 1][y + 1];
+                        gy += pixel * mascaraY[x + 1][y + 1];
                     }
                 }
-
                 int g = Math.abs(gx) + Math.abs(gy); // aproximação de |G|
                 g = Math.min(255, g); // limita ao intervalo válido
-
                 Color cor = new Color(g, g, g);
                 imagemSaida.setRGB(i, j, cor.getRGB());
             }
@@ -433,7 +508,6 @@ public class NewJFrame extends javax.swing.JFrame {
         ImageIcon icon = new ImageIcon(this.imagem1);
         jLabel1.setIcon(icon);
         this.imageUpdate(imagemSaida, ALLBITS, 0, 0, width, height);
-
     }
     
     public BufferedImage converterParaBinario(BufferedImage imagem) {
@@ -458,7 +532,7 @@ public class NewJFrame extends javax.swing.JFrame {
         return binaria;
     }
     
-    public BufferedImage dilatacao(BufferedImage imagem) {
+    public BufferedImage DilatarImagem(BufferedImage imagem) {
         int[][] elemento = {
             {0, 1, 0},
             {1, 1, 1},
@@ -509,7 +583,7 @@ public class NewJFrame extends javax.swing.JFrame {
         return resultado;
     }
 
-    public BufferedImage erosao(BufferedImage imagem) {
+    public BufferedImage ErodirImagem(BufferedImage imagem) {
         int[][] elemento = {
             {0, 1, 0},
             {1, 1, 1},
@@ -561,10 +635,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
         return resultado;
     }
-
-
-
-   
+  
     /**
      * @param args the command line arguments
      */
