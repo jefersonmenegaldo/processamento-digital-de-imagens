@@ -1,33 +1,27 @@
-
-import java.awt.Color;
-import javax.swing.JOptionPane;
-import javax.swing.colorchooser.AbstractColorChooserPanel;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
+package Utils;
+
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Jeferson
  */
-public class FrmColorChoose extends javax.swing.JDialog {
+public class frmRaio extends javax.swing.JDialog {
 
+    public int MODAL_RESULT = JOptionPane.CANCEL_OPTION;
     /**
-     * Creates new form FrmColorChoose
+     * Creates new form frmRaio
      */
-    static int MODAL_RESULT = JOptionPane.CANCEL_OPTION;
-    
-    public Color getCorSelecionada(){
-        return jColorChooser1.getColor();
-    }
-    
-    public FrmColorChoose(java.awt.Frame parent, boolean modal) {
+    public frmRaio(java.awt.Frame parent, boolean modal) {
+        
         super(parent, modal);
         initComponents();
-        
-        BtnOK.addActionListener(e -> {
+        this.setLocationRelativeTo(null);
+        BtnOk.addActionListener(e -> {
             MODAL_RESULT = JOptionPane.OK_OPTION;
             this.dispose();
         });
@@ -36,13 +30,10 @@ public class FrmColorChoose extends javax.swing.JDialog {
             MODAL_RESULT = JOptionPane.CANCEL_OPTION;
             this.dispose();
         });
-        
-        for (AbstractColorChooserPanel panel : jColorChooser1.getChooserPanels()) {
-            String displayName = panel.getDisplayName();
-            if (!"RGB".equals(displayName)) {
-                jColorChooser1.removeChooserPanel(panel);
-            }
-        }
+    }
+    
+    public int getRaio(){
+        return Integer.parseInt(TextRaio.getText());
     }
 
     /**
@@ -54,37 +45,49 @@ public class FrmColorChoose extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        BtnOK = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        TextRaio = new javax.swing.JTextField();
         BtnCancelar = new javax.swing.JButton();
-        jColorChooser1 = new javax.swing.JColorChooser();
+        BtnOk = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Raio");
 
-        BtnOK.setText("OK");
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Tamanho do Raio");
 
         BtnCancelar.setText("Cancelar");
+
+        BtnOk.setText("Ok");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(BtnCancelar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(BtnOK))
-                    .addComponent(jColorChooser1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 640, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(TextRaio, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(BtnCancelar)
+                                .addGap(27, 27, 27)
+                                .addComponent(BtnOk)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jColorChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(TextRaio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(BtnOK)
+                    .addComponent(BtnOk)
                     .addComponent(BtnCancelar))
                 .addContainerGap())
         );
@@ -109,20 +112,20 @@ public class FrmColorChoose extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmColorChoose.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(frmRaio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmColorChoose.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(frmRaio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmColorChoose.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(frmRaio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmColorChoose.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(frmRaio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                FrmColorChoose dialog = new FrmColorChoose(new javax.swing.JFrame(), true);
+                frmRaio dialog = new frmRaio(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -136,7 +139,8 @@ public class FrmColorChoose extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtnCancelar;
-    private javax.swing.JButton BtnOK;
-    private javax.swing.JColorChooser jColorChooser1;
+    private javax.swing.JButton BtnOk;
+    private javax.swing.JTextField TextRaio;
+    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }
