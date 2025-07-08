@@ -6,32 +6,42 @@
 /**
  * @author ionildo
  */
-import Utils.frmRaio;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
-import java.util.Random;
-import javax.swing.filechooser.*;
-import java.awt.Color;
-import java.awt.Point;
-import java.awt.image.BufferedImage;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.*;
 import java.util.List;
-import java.util.Stack;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class NewJFrame extends javax.swing.JFrame {
      BufferedImage imagem1;
+     BufferedImage imagem2;
+     BufferedImage imagem3;
+     
+     ImageIcon imagem1Icon = null;
+     
      int flag=0;
+     int quem_chamou = -1;
+     int ultimo_valor_slider = 0;
    
     public NewJFrame() {
         initComponents();
-        this.setLocationRelativeTo(null);
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        panelSlider.setVisible(false);
+        sliderMain.setValue(10);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        jScrollPane2.setVisible(false);
+        jScrollPane1.setSize(this.getWidth()-50, this.getHeight()-50);
+
     }
 
     /**
@@ -43,21 +53,62 @@ public class NewJFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jLabel2 = new javax.swing.JLabel();
+        panelSlider = new javax.swing.JPanel();
+        sliderMain = new javax.swing.JSlider();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+        jMenuItem5 = new javax.swing.JMenuItem();
+        menuTransparencia = new javax.swing.JMenuItem();
+        menuSobrepor = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        jMenuItem9 = new javax.swing.JMenuItem();
-        jMenuItem10 = new javax.swing.JMenuItem();
-        jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem10 = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
+        jMenuItem13 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setBackground(new java.awt.Color(255, 255, 51));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jLabel1.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        jScrollPane1.setViewportView(jLabel1);
+
+        jScrollPane2.setViewportView(jLabel2);
+
+        sliderMain.setMaximum(10);
+        sliderMain.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sobreporImagensSliderChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelSliderLayout = new javax.swing.GroupLayout(panelSlider);
+        panelSlider.setLayout(panelSliderLayout);
+        panelSliderLayout.setHorizontalGroup(
+            panelSliderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelSliderLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(sliderMain, javax.swing.GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        panelSliderLayout.setVerticalGroup(
+            panelSliderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSliderLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(sliderMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         jMenu1.setText("Arquivo");
 
@@ -89,49 +140,81 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jMenu2.setText("Imagem");
 
-        jMenuItem6.setText("Adicionar Sal e Pimenta");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem4.setLabel("Negativo");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+                jMenuItem4ActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem6);
+        jMenu2.add(jMenuItem4);
 
-        jMenu3.setText("Filtros");
-
-        jMenuItem9.setText("Filtro da Média");
-        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem5.setText("Escala de Cinza");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem9ActionPerformed(evt);
+                jMenuItem5ActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem9);
+        jMenu2.add(jMenuItem5);
 
-        jMenuItem10.setText("Filtro da Mediana");
-        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+        menuTransparencia.setText("Transparência Com a Cor Preta");
+        menuTransparencia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem10ActionPerformed(evt);
+                menuTransparenciaActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem10);
+        jMenu2.add(menuTransparencia);
+
+        menuSobrepor.setLabel("Sobrepor Imagens");
+        menuSobrepor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuSobreporActionPerformed(evt);
+            }
+        });
+        jMenu2.add(menuSobrepor);
+
+        jMenu3.setText("Arquivo PNM");
+
+        jMenuItem8.setText("Abrir Arquivo");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAbrirPNM(evt);
+            }
+        });
+        jMenu3.add(jMenuItem8);
 
         jMenu2.add(jMenu3);
 
-        jMenuItem7.setText("Detectar Bordas (Sobel)");
-        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem10.setText("Segmentar Cor");
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem7ActionPerformed(evt);
+                menuSegmentarCor(evt);
             }
         });
-        jMenu2.add(jMenuItem7);
+        jMenu2.add(jMenuItem10);
 
-        jMenuItem8.setText("Determinar Valor das Moedas");
-        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem11.setText("Correção Gamma");
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem8ActionPerformed(evt);
+                menuCorrecaoGammaActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem8);
+        jMenu2.add(jMenuItem11);
+
+        jMenuItem12.setText("Espelhar Horizontalmente");
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuEspelharHorizontal(evt);
+            }
+        });
+        jMenu2.add(jMenuItem12);
+
+        jMenuItem13.setText("Espelhar Verticalmente");
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuEspelharVertical(evt);
+            }
+        });
+        jMenu2.add(jMenuItem13);
 
         jMenuBar1.add(jMenu2);
 
@@ -142,23 +225,210 @@ public class NewJFrame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(0, 400, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2))
+                    .addComponent(panelSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(0, 279, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 616, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void menuAbrirPNM(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbrirPNM
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter("PPM (P3)", "ppm"));
+        chooser.setDialogTitle("Abrir Imagem");
+
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File file = chooser.getSelectedFile();
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+
+            // percorre as linhas procurando o tipo da imagem
+            // e ignora linhas de comentario
+            String linha;
+            do {
+                linha = br.readLine();
+            } while (linha != null && (linha.trim().isEmpty() || linha.trim().startsWith("#")));
+
+            if (!linha.trim().equals("P3")) {
+                throw new IOException("Formato inválido. Esperado: P3");
+            }
+
+            int width = 0;
+            int height = 0;
+            // percorre as linhas procurando o width e heigth
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                
+                if (linha.startsWith("#") || linha.isEmpty()) 
+                    continue;
+
+                String[] tamanho = linha.split("\\s+");
+                if (tamanho.length >= 2) {
+                    width = Integer.parseInt(tamanho[0]);
+                    height = Integer.parseInt(tamanho[1]);
+                    break;
+                }
+            }
+
+            // percorre para encontrar a quantiadade de cores e verifica se é 255
+            int qtdCores = 255;
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                if (linha.startsWith("#") || linha.isEmpty()) continue;
+
+                qtdCores = Integer.parseInt(linha);
+                if (qtdCores != 255) {
+                    throw new IOException("Valor máximo de cor diferente de 255 não suportado");
+                }
+                break;
+            }
+
+            // popula a lista de rgb, com os bytes encontrados, depois de ler o cabeçalho
+            List<Integer> rgbList = new ArrayList<>();
+            while ((linha = br.readLine()) != null) {
+                linha = linha.trim();
+                if (linha.startsWith("#") || linha.isEmpty()) 
+                   continue;
+
+                String[] data = linha.split("\\s+");
+                for (String val : data) {
+                    if (!val.isEmpty())
+                       rgbList.add(Integer.parseInt(val));
+                }
+            }
+
+            if (rgbList.size() != width * height * 3) {
+                throw new IOException("Número de valores RGB incorreto.");
+            }
+
+            BufferedImage imagem = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            int idx = 0;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int r = rgbList.get(idx++);
+                    int g = rgbList.get(idx++);
+                    int b = rgbList.get(idx++);
+                    
+                    Color c = new Color(r,g, b);
+                    imagem.setRGB(j, i, c.getRGB());
+                }
+            }
+
+            this.imagem1 = imagem;
+            repaint();
+            System.out.println("Imagem P3 carregada com sucesso!");
+            ImageIcon icon = new ImageIcon(imagem1);
+            jLabel1.setIcon(icon);
+
+            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Erro ao ler imagem PPM P3: " + e.getMessage());
+        }  
+    }//GEN-LAST:event_menuAbrirPNM
+    
+    private void menuSegmentarCor(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuSegmentarCor
+        FrmColorChoose frm = new FrmColorChoose(this, true);
+        frm.setVisible(true);
+        
+        if (frm.MODAL_RESULT != JOptionPane.OK_OPTION)
+            return;
+        
+        int width = imagem1.getWidth();
+	    int height = imagem1.getHeight();
+        Color corSelecionada = frm.getCorSelecionada();
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color cor = new Color(imagem1.getRGB(i, j));
+               
+               int r = cor.getRed();
+               int g = cor.getGreen();
+               int b = cor.getBlue();
+               
+               if (cor.getRed()!= corSelecionada.getRed() || 
+                   cor.getGreen() != corSelecionada.getGreen() ||
+                   cor.getBlue() != corSelecionada.getBlue()) {
+                   r = 0;
+                   g = 0;
+                   b = 0;
+               }             
+               
+               Color color = new Color(r, g, b);
+               imagem1.setRGB(i, j, color.getRGB());
+	    }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+        
+    }//GEN-LAST:event_menuSegmentarCor
+
+    private void menuEspelharHorizontal(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEspelharHorizontal
+        int width = imagem1.getWidth();
+	    int height = imagem1.getHeight();
+        
+        BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
+               
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+              
+               int rgb = imagem1.getRGB(i, j);
+               int x_invertido = width - 1 -i;
+               invertida.setRGB(x_invertido, j, rgb);
+	    }
+        }
+        imagem1 = null;
+        imagem1 = copiarImagem(invertida);
+        imagem1Icon = new ImageIcon(invertida);
+        jLabel1.setIcon(imagem1Icon);
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
+    }//GEN-LAST:event_menuEspelharHorizontal
+
+    private void menuEspelharVertical(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEspelharVertical
+        int width = imagem1.getWidth();
+	int height = imagem1.getHeight();
+        
+        BufferedImage invertida = new BufferedImage(width, height, imagem1.getType());
+               
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+              
+               int rgb = imagem1.getRGB(i, j);
+               int y_invertido = height - 1 -j;
+               invertida.setRGB(i, y_invertido, rgb);
+	        }
+        }
+        
+        imagem1 = null;
+        imagem1 = copiarImagem(invertida);
+        imagem1Icon = new ImageIcon(invertida);
+        jLabel1.setIcon(imagem1Icon);
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, imagem1.getWidth(), imagem1.getHeight());
+    }//GEN-LAST:event_menuEspelharVertical
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
 
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif", "jpeg");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif");
         chooser.setFileFilter(filter);
         chooser.setDialogTitle("Abrir Imagem");
         int op = chooser.showOpenDialog(this);
@@ -168,17 +438,16 @@ public class NewJFrame extends javax.swing.JFrame {
             try { 
                   //carrega nova imagem
                   imagem1 = ImageIO.read(new File(path));
+                  imagem2 = ImageIO.read(new File(path));
                   System.out.println("Arquivo aberto com sucesso!");
-                  ImageIcon icon = new ImageIcon(imagem1);
+                  imagem1Icon = new ImageIcon(imagem1);
                   if (flag==0) {
-                      jLabel1.setIcon(icon);
-                      Container contentPane = getContentPane();
-                      contentPane.setLayout(new GridLayout());
-                      contentPane.add(new JScrollPane(jLabel1));
+                      jLabel1.setIcon(imagem1Icon);
                       flag=1;
                   }
-                  else jLabel1.setIcon(icon);
-                  //setSize(imagem1.getWidth()+25, imagem1.getHeight()+70);
+                  else jLabel1.setIcon(imagem1Icon);
+                  
+                  jScrollPane1.setSize(this.getWidth(), this.getHeight());
 	    }
 	    catch(IOException e){
 		System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
@@ -187,451 +456,311 @@ public class NewJFrame extends javax.swing.JFrame {
 		System.out.println("Erro Exception! " + e.getMessage());
 	    }                   
         }  
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         System.exit(1);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    public BufferedImage copiarImagem(BufferedImage imagemOriginal) {
+        int width = imagemOriginal.getWidth();
+        int height = imagemOriginal.getHeight();
+        BufferedImage novaImagem = new BufferedImage(width, height, imagemOriginal.getType());
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int rgb = imagemOriginal.getRGB(j, i);
+                novaImagem.setRGB(j, i, rgb);
+            }
+        }
+        return novaImagem;
+    }
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG Images", "jpg");
-        chooser.setFileFilter(filter);
-        chooser.setDialogTitle("Salvar Imagem");
+        
+        FileNameExtensionFilter filtroPNG = new FileNameExtensionFilter("PNG (*.png)", "png");
+        FileNameExtensionFilter filtroJPG = new FileNameExtensionFilter("JPEG (*.jpg)", "jpg", "jpeg");
+        FileNameExtensionFilter filtroBMP = new FileNameExtensionFilter("BMP (*.bmp)", "bmp");
+        FileNameExtensionFilter filtroGIF = new FileNameExtensionFilter("GIF (*.GIF)", "GIF");
+
+        chooser.addChoosableFileFilter(filtroPNG);
+        chooser.addChoosableFileFilter(filtroJPG);
+        chooser.addChoosableFileFilter(filtroBMP);
+        chooser.addChoosableFileFilter(filtroGIF);
+
+        chooser.setFileFilter(filtroPNG); 
+
+        chooser.setDialogTitle("Salvar imagem");
         int op = chooser.showSaveDialog(this);
+    
+        if(op != JFileChooser.APPROVE_OPTION)
+            return;       
+    
+        File arq = chooser.getSelectedFile();  
+        FileNameExtensionFilter filtroSelecionado = (FileNameExtensionFilter) chooser.getFileFilter();
+        String extensao = filtroSelecionado.getExtensions()[0];
+        String path = arq.toString() +'.'+ extensao;  
+        try {
+            ImageIO.write(imagem1,extensao,new File(path));
+            System.out.println("Arquivo salvo com sucesso!");
+        }
+        catch(IOException e){
+                System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
+        }
+        catch(Exception e){
+                System.out.println("Erro Exception! " + e.getMessage());
+        }
+    }
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+                Color cor = new Color(imagem1.getRGB(i, j));
+                int r = 255 - cor.getRed();
+                int g = 255 - cor.getGreen();
+                int b = 255 - cor.getBlue();
+                   Color color = new Color(r, g, b);
+                   imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+                Color c = new Color(imagem1.getRGB(i, j));
+                int y = (int)(0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
+                Color color = new Color(y, y, y);
+                imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }
+
+    private void menuTransparenciaActionPerformed(java.awt.event.ActionEvent evt) {  
+        this.quem_chamou = 2;
+        jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        panelSlider.setSize(this.getWidth(), 120);
+        panelSlider.setVisible(true);
+        
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                transparenciaSliderChanged(t);
+            }          
+        });
+    }
+
+    private void sliderMainStateChanged(javax.swing.event.ChangeEvent evt) {                                        
+        //transparencia
+        panelSlider.setVisible(true);
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10.0;
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = (int) (0*(1-transparencia) + c.getRed()* transparencia);
+               int green = (int) (0*(1-transparencia) + c.getGreen()* transparencia);
+               int blue = (int) (0*(1-transparencia) + c.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }
+
+    private void menuSobreporActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //sobrepor imagens
+        this.quem_chamou = 1;
+        this.imagem3 = copiarImagem(this.imagem2);
+
+        panelSlider.setSize(this.getWidth(), 120);
+        panelSlider.setVisible(true);
+        sliderMain.setMinimum(0);
+        sliderMain.setMaximum(10);
+        sliderMain.setValue(10);
+        
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                sobreporImagensSliderChanged(t);
+            }          
+        }); 
+        
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("BMP, JPG, PNG & GIF Images", "bmp", "jpg", "png", "gif");
+        chooser.setFileFilter(filter);
+        chooser.setDialogTitle("Abrir Imagem");
+        int op = chooser.showOpenDialog(this);
         if(op == JFileChooser.APPROVE_OPTION){  
             File arq = chooser.getSelectedFile();  
             String path = arq.toString();  
-            try {
-		ImageIO.write(imagem1,"jpg",new File(path));
-		System.out.println("Arquivo salvo com sucesso!");
-		}
-		catch(IOException e){
-			System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
-		}
-		catch(Exception e){
-			System.out.println("Erro Exception! " + e.getMessage());
-		}
-        }
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+            try { 
+                  //carrega nova imagem
+                  imagem2 = ImageIO.read(new File(path));
+                  System.out.println("Arquivo aberto com sucesso!");
+                  ImageIcon icon = new ImageIcon(imagem2);
+                  if (flag==0) {
+                      jLabel2.setIcon(icon);
+                      flag=1;
+                  }
+                  else jLabel2.setIcon(icon);
+                                   
+                  jScrollPane2.setSize(this.getWidth() / 2 - 50, this.getHeight()-150);
+                  jScrollPane1.setSize(this.getWidth() / 2-50, this.getHeight()- 150);
+                  jLabel1.setSize(jScrollPane1.getWidth()-50, jScrollPane1.getHeight()-50);
+                  jLabel1.setSize(jScrollPane2.getWidth()-50, jScrollPane2.getHeight()-50);
+                  jScrollPane2.setLocation((this.getWidth() / 2) + 10, 0);
+                  jScrollPane1.setLocation(10, 0);
+                  jScrollPane2.setVisible(true);
 
-    public int GetValorCinza(int x, int y){
-        Color cor = new Color(imagem1.getRGB(x, y));
-        return cor.getRed();
+	    }
+	    catch(IOException e){
+		System.out.println("Erro IO Exception! Verifique se o arquivo especificado existe e tente novamente.");
+	    }
+	    catch(Exception e){
+		System.out.println("Erro Exception! " + e.getMessage());
+	    }                   
+        }  
     }
 
-    public int GetMediaVizinhosCinza(int x, int y, int raio, BufferedImage imagem) {
-        int width = imagem.getWidth();
-        int height = imagem.getHeight();
-        int soma = 0;
+    private void menuCorrecaoGammaActionPerformed(java.awt.event.ActionEvent evt) {   
+        this.quem_chamou = 3;
 
-        int count = 0;
-        for (int i = -raio; i <= raio; i++) {
-            for (int j = -raio; j <= raio; j++) {
-                int x_vizinho = x + i;
-                int y_vizinho = y + j;
+        jScrollPane1.setSize(this.getWidth(), this.getHeight()-150);
+        panelSlider.setSize(this.getWidth(), 120);
+        panelSlider.setVisible(true);
+        sliderMain.setMinimum(0);
+        sliderMain.setMaximum(25);
+        sliderMain.setValue(10);
+        
+        sliderMain.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent t){
+                correcaoGammaSliderChanged(t);
+            }          
+        });                   
+    }
 
-                if (x_vizinho >= 0 && x_vizinho < width && y_vizinho >= 0 && y_vizinho < height) {
-                    soma += GetValorCinza(x_vizinho, y_vizinho); 
-                    count++;
-                }
-            }
-        }
-        return soma / count;
-    }
-    
-    public ArrayList<Integer> GetMedianaVizinhosCinza(int x, int y, int raio, BufferedImage imagem, ArrayList<Integer> listaValores) {
-        int largura = imagem.getWidth();
-        int altura = imagem.getHeight();
-        for (int i = -raio; i <= raio; i++) {
-            for (int j = -raio; j <= raio; j++) {
-                int x_vizinho = x + i;
-                int y_vizinho = y + j;
-
-                if (x_vizinho >= 0 && x_vizinho < largura && y_vizinho >= 0 && y_vizinho < altura) {
-                    listaValores.add(GetValorCinza(x_vizinho, y_vizinho)); 
-                }
-            }
-        }
-        return listaValores;
-    }
-    
-    public int[][] ConverterBufferedImageToMatriz(BufferedImage imagem){
-        int width = imagem.getWidth(); 
-        int height = imagem.getHeight(); 
-        int[][] matriz = new int[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Color cor = new Color(imagem.getRGB(x, y));
-                int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
-                matriz[y][x] = (media < 128) ? 1 : 0;
-            }
-        }
-        return matriz;
-    }
-    
-    public int[] contaQtdMoedas(List<Integer> areasDetectadas) {
-        int[] moedas = new int[5];
-        for (int area : areasDetectadas) {
-            
-            if (area > 60000 && area < 70000) {
-                moedas[1]++;
-                continue;
-            }
-            if (area > 50000 && area < 60000) {
-                moedas[2]++;
-                continue;
-            }
-            if (area > 40000 && area < 50000) {
-                moedas[0]++;
-            }
-            if (area > 60000 && area < 100000) {
-                moedas[3]++;
-            }
-        }
-        return moedas;
-    }
-    
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        // sal e pimenta
+    private void transparenciaSliderChanged(javax.swing.event.ChangeEvent evt) { 
+        if (this.quem_chamou != 2)
+            return;
+        
+        //correcao gamma
+        panelSlider.setVisible(true);
+        if (this.imagem1 == null)
+            return;
+        
         int width = imagem1.getWidth();
-	int height = imagem1.getHeight();
-        int qtdPixelsComRuido = (int) ((width * height) * 0.05);
-        Random random = new Random();
-        
-        for (int i = 0; i < qtdPixelsComRuido; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            int tomDeCinza = (GetValorCinza(x, y) > 127) ? 255: 0;
-
-            Color color = new Color(tomDeCinza, tomDeCinza, tomDeCinza);
-            imagem1.setRGB(x, y, color.getRGB());            
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10.0;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = (int) (0*(1-transparencia) + c.getRed()* transparencia);
+               int green = (int) (0*(1-transparencia) + c.getGreen()* transparencia);
+               int blue = (int) (0*(1-transparencia) + c.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
         }
-        
         this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    }
 
-    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        //media
-        int width = imagem1.getWidth();
-        int height = imagem1.getHeight();
+    private void correcaoGammaSliderChanged(javax.swing.event.ChangeEvent evt) { 
         
-        try {
-            frmRaio frmRaio = new frmRaio(null, true);
-            frmRaio.setVisible(true);
-
-            if (frmRaio.MODAL_RESULT != JOptionPane.OK_OPTION)
-                return;
-
-            int raio = frmRaio.getRaio();
-            int tamanhoBorda = raio;
-            for (int i = tamanhoBorda; i < width -tamanhoBorda; i++) {
-                for (int j = tamanhoBorda; j < height -tamanhoBorda; j++) { 				
-                    int mediaValoresCinza = GetMediaVizinhosCinza(i, j, raio, imagem1);
-
-                    if (mediaValoresCinza < 0 || mediaValoresCinza > 255) {
-                      continue;  
-                    }
-                    Color color = new Color(mediaValoresCinza, mediaValoresCinza, mediaValoresCinza);
-                    imagem1.setRGB(i, j, color.getRGB());
-                }
-            }
-            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        } catch(Exception e) {
-            System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
-        }  
-    }//GEN-LAST:event_jMenuItem9ActionPerformed
-
-    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
-        // mediana
+        if (this.quem_chamou != 3)
+            return;
+        if (this.imagem1 == null)
+            return;
+        
+        panelSlider.setVisible(true);
         int width = imagem1.getWidth();
         int height = imagem1.getHeight();
-                
-        try {
-            frmRaio frmRaio = new frmRaio(null, true);
-            frmRaio.setVisible(true);
+        double valorGamma = (double) sliderMain.getValue() / 10;
 
-            if (frmRaio.MODAL_RESULT != JOptionPane.OK_OPTION)
-                return;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 				
+               Color c = new Color(imagem2.getRGB(i, j));
+                             
+               int red = this.aplicaCorrecaoGamma(255, c.getRed(), valorGamma);
+               int green = this.aplicaCorrecaoGamma(255, c.getGreen(), valorGamma);
+               int blue = this.aplicaCorrecaoGamma(255, c.getBlue(), valorGamma);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
+            }
+        }
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
+    }
 
-            int raio = frmRaio.getRaio();
-            int tamanhoBorda = raio;
-            for (int i = tamanhoBorda; i < width -tamanhoBorda; i++) {
-                for (int j = tamanhoBorda; j < height -tamanhoBorda; j++) { 				
-                    ArrayList<Integer> valores = new ArrayList<>();    
-                    valores = GetMedianaVizinhosCinza(i, j, raio, imagem1, valores);
-                    Collections.sort(valores);
+    private void sobreporImagensSliderChanged(javax.swing.event.ChangeEvent evt) {                                              
+        
+        if (this.quem_chamou != 1) 
+            return;
+        
+        //sobrepor imagens
+        panelSlider.setVisible(true);
+        
+        if (this.imagem1 == null)
+            return;
+        
+        int width = imagem1.getWidth();
+        int height = imagem1.getHeight();
+        int value = sliderMain.getValue();
+        double transparencia = value / 10.0;
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) { 
+                Color c1;
+                Color c2;
+                if (this.ultimo_valor_slider != 0 || this.ultimo_valor_slider > value) {
+                    c1 = new Color(imagem2.getRGB(i, j));
+                    c2 = new Color(imagem3.getRGB(i, j));
                     
-                    int meioDoVetor = valores.size() / 2;
-                    int medianaValoresCinza;
-                    medianaValoresCinza = valores.get(meioDoVetor);
-                                     
-                    Color color = new Color(medianaValoresCinza, medianaValoresCinza, medianaValoresCinza);
-                    imagem1.setRGB(i, j, color.getRGB());
-                    valores.clear();
+                } else {
+                    c1 = new Color(imagem1.getRGB(i, j));
+                    c2 = new Color(imagem2.getRGB(i, j));   
                 }
-            }
-            this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
-        } catch(Exception e) {
-            System.out.println( String.format("Erro Ao Aplicar Filtro: %S", e.getMessage()));
-        }  
-    }//GEN-LAST:event_jMenuItem10ActionPerformed
-
-    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        // contar moedas
-        int width = imagem1.getWidth();
-        int height = imagem1.getHeight();
-
-        // Converte imagem para binária
-        BufferedImage imagemData = converterParaBinario(this.imagem1);
-
-        // Pré-processamento morfológico
-        for (int i = 0; i < 4; i++) 
-            imagemData = DilatarImagem(imagemData);
-        
-        for (int i = 0; i < 4; i++) 
-            imagemData = ErodirImagem(imagemData);
-
-        // 3. Converte imagem binária para matriz 0 (fundo) e 1 (moeda)
-        int imagemMatriz[][] = ConverterBufferedImageToMatriz(imagemData);
-
-        // 4. mede área
-        List<Integer> areasDetectadas = new ArrayList<>();
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (imagemMatriz[i][j] == 1) {
-                    int area = contaAreaMoedas(imagemMatriz, j, i);
-                    if (area > 500) {
-                        areasDetectadas.add(area);
-                    }
-                }
+               
+               int red = (int) (c1.getRed() *(1-transparencia) + c2.getRed()* transparencia);
+               int green = (int) (c1.getGreen(  )*(1-transparencia) + c2.getGreen()* transparencia);
+               int blue = (int) (c1.getBlue()*(1-transparencia) + c2.getBlue()* transparencia);
+               
+               Color color = new Color(red, green, blue);
+               imagem1.setRGB(i, j, color.getRGB());
             }
         }
-
-        // 5. Classifica moedas por tamanho aproximado
-        int[] moedas = contaQtdMoedas(areasDetectadas); 
-        
-        double total = (moedas[0] * 10) + (moedas[1] *25) + (moedas[2] * 50) + (moedas[3] * 100);
-        total = total / 100;
-        
-        // 6. Exibe resultados
-        JOptionPane.showMessageDialog(this,
-            String.format(
-                "Total de moedas: %s \n" +
-                "10 centavos: %s \n" +
-                "25 centavos: %s \n" +
-                "50 centavos: %s \n" +
-                "1 Real: %s \n" +
-                "Total: R$ %s  \n",
-                areasDetectadas.size(), moedas[0], moedas[1], moedas[2], moedas[3], total
-            )
-        );
-
-        this.imagem1 = imagemData;
-        ImageIcon icon = new ImageIcon(this.imagem1);
-        jLabel1.setIcon(icon);
-        this.imageUpdate(imagemData, ALLBITS, 0, 0, width, height);
-    }//GEN-LAST:event_jMenuItem8ActionPerformed
-
-    private int contaAreaMoedas(int[][] matriz, int x, int y) {
-        int altura = matriz.length;
-        int largura = matriz[0].length;
-        Stack<Point> pilha = new Stack<>();
-        pilha.push(new Point(x, y));
-        int area = 0;
-
-        while (!pilha.isEmpty()) {
-            Point posicao = pilha.pop();
-            int x_pilha = posicao.x;
-            int y_pilha = posicao.y;
-
-            if (x_pilha < 0 || y_pilha < 0 || x_pilha >= largura || y_pilha >= altura)
-                continue;
-            
-            if (matriz[y_pilha][x_pilha] != 1)
-                continue;
-
-            matriz[y_pilha][x_pilha] = -1;
-            area++;
-
-            pilha.push(new Point(x_pilha + 1, y_pilha));
-            pilha.push(new Point(x_pilha - 1, y_pilha));
-            pilha.push(new Point(x_pilha, y_pilha + 1));
-            pilha.push(new Point(x_pilha, y_pilha - 1));
-        }
-        return area;
-    }
-
-    
-    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        // Sobel
-        int width = imagem1.getWidth();
-        int height = imagem1.getHeight();
-
-        BufferedImage imagemSaida = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        
-        int[][] mascaraX = {
-            { -1, 0, 1 },
-            { -2, 0, 2 },
-            { -1, 0, 1 }
-        };
-
-        int[][] mascaraY = {
-            { -1, -2, -1 },
-            {  0,  0,  0 },
-            {  1,  2,  1 }
-        };
-
-        for (int i = 1; i < width - 1; i++) {
-            for (int j = 1; j < height - 1; j++) {
-                int gx = 0;
-                int gy = 0;
-                for (int x = -1; x <= 1; x++) {
-                    for (int y = -1; y <= 1; y++) {
-                        int pixel = new Color(imagem1.getRGB(i + x, j + y)).getRed(); // assume imagem em tons de cinza
-                        gx += pixel * mascaraX[x + 1][y + 1];
-                        gy += pixel * mascaraY[x + 1][y + 1];
-                    }
-                }
-                int g = Math.abs(gx) + Math.abs(gy); // aproximação de |G|
-                g = Math.min(255, g); // limita ao intervalo válido
-                Color cor = new Color(g, g, g);
-                imagemSaida.setRGB(i, j, cor.getRGB());
-            }
-        }
-
-        this.imagem1 = imagemSaida;
-        ImageIcon icon = new ImageIcon(this.imagem1);
-        jLabel1.setIcon(icon);
-        this.imageUpdate(imagemSaida, ALLBITS, 0, 0, width, height);
+        this.ultimo_valor_slider = value;
+        this.imageUpdate(imagem1, ALLBITS, 0, 0, width, height);
     }
     
-    public BufferedImage converterParaBinario(BufferedImage imagem) {
-        int largura = imagem.getWidth();
-        int altura = imagem.getHeight();
-
-        BufferedImage binaria = new BufferedImage(largura, altura, BufferedImage.TYPE_BYTE_BINARY);
-
-        for (int i = 0; i< altura; i++) {
-            for (int j = 0; j < largura; j++) {
-                Color cor = new Color(imagem.getRGB(i, j));
-
-                int tomDeCinza = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
-
-                int tomBinario = (tomDeCinza < 128) ? 0 : 255;
-                Color color = new Color(tomBinario, tomBinario, tomBinario);
-
-                binaria.setRGB(i, j, color.getRGB());
-            }
-        }
-
-        return binaria;
-    }
+    public int aplicaCorrecaoGamma(double constante, int rgbOriginal, double valorGamma) {
+        double rgbNormalizado = rgbOriginal / 255.0; 
+        double rgbResultado = constante * Math.pow(rgbNormalizado, valorGamma); 
+        
+        return (int) Math.round(Math.min(255, Math.max(0, rgbResultado))); 
+    }    
     
-    public BufferedImage DilatarImagem(BufferedImage imagem) {
-        int[][] elemento = {
-            {0, 1, 0},
-            {1, 1, 1},
-            {0, 1, 0}
-        };
-        int width = imagem.getWidth();
-        int height = imagem.getHeight();
-        int eAltura = elemento.length;
-        int eLargura = elemento[0].length;
-
-        // Centro do elemento estruturante
-        int cx = eLargura / 2;
-        int cy = eAltura / 2;
-
-        // Cria imagem de saída
-        BufferedImage resultado = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-
-                boolean hit = false;
-
-                for (int j = 0; j < eAltura; j++) {
-                    for (int i = 0; i < eLargura; i++) {
-                        if (elemento[j][i] == 1) {
-                            int bx = x + (i - cx);
-                            int by = y + (j - cy);
-
-                            if (bx >= 0 && bx < width && by >= 0 && by < height) {
-                                Color cor = new Color(imagem.getRGB(bx, by));
-                                int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
-
-                                if (media < 128) { // pixel preto
-                                    hit = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (hit) break;
-                }
-
-                int corFinal = hit ? 0 : 255; // preto se bateu, branco se não
-                Color novaCor = new Color(corFinal, corFinal, corFinal);
-                resultado.setRGB(x, y, novaCor.getRGB());
-            }
-        }
-        return resultado;
-    }
-
-    public BufferedImage ErodirImagem(BufferedImage imagem) {
-        int[][] elemento = {
-            {0, 1, 0},
-            {1, 1, 1},
-            {0, 1, 0}
-        };
-        int width = imagem.getWidth();
-        int height = imagem.getHeight();
-        int eAltura = elemento.length;
-        int eLargura = elemento[0].length;
-
-        int cx = eLargura / 2;
-        int cy = eAltura / 2;
-
-        BufferedImage resultado = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-
-                boolean cabe = true;
-
-                for (int j = 0; j < eAltura; j++) {
-                    for (int i = 0; i < eLargura; i++) {
-                        if (elemento[j][i] == 1) {
-                            int bx = x + (i - cx);
-                            int by = y + (j - cy);
-
-                            if (bx < 0 || bx >= width || by < 0 || by >= height) {
-                                cabe = false;
-                                break;
-                            }
-
-                            Color cor = new Color(imagem.getRGB(bx, by));
-                            int media = (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3;
-
-                            if (media >= 128) { // se for branco
-                                cabe = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (!cabe) break;
-                }
-
-                int corFinal = cabe ? 0 : 255; // preto se couber o EE, senão branco
-                Color novaCor = new Color(corFinal, corFinal, corFinal);
-                resultado.setRGB(x, y, novaCor.getRGB());
-            }
-        }
-
-        return resultado;
-    }
-  
     /**
      * @param args the command line arguments
      */
@@ -666,19 +795,29 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
     }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem8;
-    private javax.swing.JMenuItem jMenuItem9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JMenuItem menuSobrepor;
+    private javax.swing.JMenuItem menuTransparencia;
+    private javax.swing.JPanel panelSlider;
+    private javax.swing.JSlider sliderMain;
     // End of variables declaration//GEN-END:variables
 }
